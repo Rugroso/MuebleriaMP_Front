@@ -12,7 +12,9 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarStyle: { backgroundColor: '#131414' },
         headerShown: false,
+        tabBarHideOnKeyboard: false,
       }}>
       <Tabs.Screen
         name="index"
@@ -24,14 +26,33 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="inventory"
         options={{
-          title: 'Explore',
+          title: 'Inventario',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <TabBarIcon name={focused ? 'clipboard' : 'clipboard-outline'} color={color} />
           ),
         }}
       />
+      <Tabs.Screen
+        name="purchase"
+        options={{
+          title: 'Compras',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'cart' : 'cart-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="sale"
+        options={{
+          title: 'Ventas',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'cash' : 'cash-outline'} color={color} />
+          ),
+        }}
+      />
+
     </Tabs>
   );
 }
