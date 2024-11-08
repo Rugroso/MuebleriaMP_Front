@@ -16,29 +16,9 @@ export default function HomeScreen() {
         <Text className='text-2xl font-semibold text-white mb-5 text-start'>
           Resumen General
         </Text>
-
+      
         <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
-          <MaterialIcons name="shopping-cart" size={24} color="white" />
-          <View className='ml-4'>
-            <Text className='text-xl font-semibold text-white'>Última Venta Realizada</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Producto: Silla de Oficina</Text>
-            <Text className='text-lg text-gray-300'>Fecha: 03/11/2024</Text>
-            <Text className='text-lg text-gray-300'>Total: $450.00</Text>
-          </View>
-        </View>
-
-        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
-          <FontAwesome name="truck" size={24} color="white" />
-          <View className='ml-4'>
-            <Text className='text-xl font-semibold text-white'>Última Compra Realizada</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Proveedor: Muebles XYZ</Text>
-            <Text className='text-lg text-gray-300'>Fecha: 02/11/2024</Text>
-            <Text className='text-lg text-gray-300'>Total: $1,200.00</Text>
-          </View>
-        </View>
-
-        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
-          <MaterialIcons name="attach-money" size={24} color="white" />
+          <MaterialIcons name="attach-money" size={32} color="white" />
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Venta del Día</Text>
             <Text className='text-lg text-gray-300 mt-2'>Total Ventas: $2,000.00</Text>
@@ -47,7 +27,7 @@ export default function HomeScreen() {
         </View>
 
         <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
-          <FontAwesome name="archive" size={24} color="white" />
+          <FontAwesome name="archive" size={32} color="white" />
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Inventario Total</Text>
             <Text className='text-lg text-gray-300 mt-2'>Productos en Inventario: 350</Text>
@@ -55,14 +35,59 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-10 flex-row items-center'>
-          <MaterialIcons name="pending-actions" size={24} color="white" />
-          <View className='ml-4'>
-            <Text className='text-xl font-semibold text-white'>Pedidos Pendientes</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Pedidos en Proceso: 4</Text>
-            <Text className='text-lg text-gray-300'>Pedidos Pendientes de Entrega: 2</Text>
+        <Text className='text-2xl font-semibold text-white mb-5 text-start'>
+          Reportes Disponibles
+        </Text>
+
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center justify-between'>
+        <View className='flex-row flex items-center'>
+          <FontAwesome name="money" size={32} color="white" />
+          <View className='ml-4 w-[80%]'>
+            <Text className='text-xl font-semibold text-white'>Compras Mensuales</Text>
+          </View>
+          </View>
+          <View>
+            <FontAwesome name="arrow-right" size={18} color="white" />
           </View>
         </View>
+
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center justify-between'>
+        <View className='flex-row flex items-center'>
+          <FontAwesome name="money" size={32} color="white" />
+          <View className='ml-4 w-[80%]'>
+            <Text className='text-xl font-semibold text-white'>Ventas Mensuales</Text>
+          </View>
+          </View>
+          <View>
+            <FontAwesome name="arrow-right" size={18} color="white" />
+          </View>
+        </View>
+
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center justify-between'>
+          <View className='flex-row flex items-center'>
+            <FontAwesome name="table" size={32} color="white" />
+            <View className='ml-4 w-[80%]'>
+              <Text className='text-xl font-semibold text-white'>Muebles Faltantes por Sucursal</Text>
+            </View>
+          </View>
+          <View>
+            <FontAwesome name="arrow-right" size={18} color="white" />
+          </View>
+        </View>
+
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center justify-between'>
+        <View className='flex-row flex items-center'>
+          <FontAwesome name="table" size={32} color="white" />
+          <View className='ml-4 w-[80%]'>
+            <Text className='text-xl font-semibold text-white'>Clientes en Estado de Crédito</Text>
+          </View>
+          </View>
+          <View>
+            <FontAwesome name="arrow-right" size={18} color="white" />
+          </View>
+        </View>
+
+
       </ScrollView>
 
     </View>

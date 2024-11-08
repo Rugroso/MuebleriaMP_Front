@@ -1,51 +1,42 @@
 import React from 'react';
-import { Check, ChevronUp } from '@tamagui/lucide-icons'
+import { Check, ChevronUp, ChevronDown } from '@tamagui/lucide-icons'
 import { Adapt, Select, Sheet, YStack,  } from 'tamagui'
 import { LinearGradient } from 'tamagui/linear-gradient'
 
 interface MenuItemsProps {
-  onSelectionChange: (value: string, topic:string) => void;
-  isOpen: boolean; 
-  setIsOpen: (value: boolean) => void;
+
   topic: string
 }
 interface Item {
   name: string;
 };
 
-const MenuItems: React.FC<MenuItemsProps> = ({ onSelectionChange, isOpen, setIsOpen, topic }) => {  
+const MenuAdd: React.FC<MenuItemsProps> = ({ topic }) => {  
 
 const Sucursales = [
-    { name: 'San Luis Río Colorado' },
-    { name: 'Mexicali' },
-    { name: 'Ensenada' },
-    { name: 'Tecate' },
-    { name: 'Rosarito' },
-    { name: 'Tijuana' },
-    { name: 'Calexico' },
-    { name: 'Yuma' },
-    { name: 'El Centro' },
-    { name: 'San Diego' },
+  { name: 'San Luis Río Colorado' },
+  { name: 'Mexicali' },
+  { name: 'Ensenada' },
+  { name: 'Tecate' },
+  { name: 'Rosarito' },
+  { name: 'Tijuana' },
+  { name: 'Calexico' },
+  { name: 'Yuma' },
+  { name: 'El Centro' },
+  { name: 'San Diego' },
 ]
 const Ordenar = [
-    { name: "Precio - Menor a Mayor"},
-    { name: "Precio - Mayor a Menor"},
-    { name: "Cantidad - Menor a Mayor"},
-    { name: "Cantidad - Mayor a Menor"},
-    { name: "Nombre - A-Z"},
-    { name: "Nombre - Z-A"}
+  { name: "Precio - Menor a Mayor"},
+  { name: "Precio - Mayor a Menor"},
+  { name: "Cantidad - Menor a Mayor"},
+  { name: "Cantidad - Mayor a Menor"},
+  { name: "Nombre - A-Z"},
+  { name: "Nombre - Z-A"}
 ];
   const [val, setVal] = React.useState('')
   const [items, setItems] = React.useState<Item[]>([
     { name: 'Test' },
   ]);
-
-
-  const handleValueChange = (value:any) => {
-    setVal(value);
-    onSelectionChange(value, topic);
-  };
-
   React.useEffect(()=> {
     if (topic==='Seleccionar una Sucursal') {
       setItems(Sucursales)
@@ -56,10 +47,13 @@ const Ordenar = [
   },[topic])
 
   return (
-    <Select value={val} onValueChange={handleValueChange} open={isOpen} onOpenChange={setIsOpen}>
-          <Adapt platform="touch">
+    <Select value={val} >
+        <Select.Trigger width={170} iconAfter={ChevronDown}>
+            <Select.Value placeholder="Something" />
+        </Select.Trigger>
+          <Adapt when="sm"  platform="touch">
             <Sheet
-              native={false}
+              native={true}
               modal
               dismissOnSnapToBottom
               animationConfig={{
@@ -133,4 +127,4 @@ const Ordenar = [
         </Select>
   );
 }
-export default MenuItems
+export default MenuAdd
