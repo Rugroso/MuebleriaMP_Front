@@ -5,21 +5,50 @@ import AddClient from '@/components/AddClient';
 
 
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-interface Item {
-  name: string;
-};
+
 
 export default function HomeScreen() {
+
+
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
+  const [size, setSize] = React.useState(0);
+  const [clients, setClients] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
 
-  const [selectedSucursal, setSelectedSucursal] = React.useState('San Luis Río Colorado');
+  const fetchClients = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/clientes"
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const dropdownItems = [
+          ...data.map((event) => ({
+            ClienteID: event.ClienteID,
+            Nombre: event.Nombre,
+            Telefono: event.Telefono,
+            Correo: event.Correo,
+            Direccion: event.Direccion,
+          })),
+        ];
+        setClients(dropdownItems);
+        setSize(dropdownItems.length)
+      } else {
+        console.error("Expected an array, received:", data);
+        setClients([]);
+      }
+    } catch (error) {
+      setClients([]);
+    }
+  };
+
+  React.useEffect(()=> {
+    fetchClients();
+  },[])
+
 
   const handleSelectionChange = (value:any, topic:string) => {
-    if (topic==='Seleccionar una Sucursal') {
-      setSelectedSucursal(value);
-    }
     setIsOpen(false);
   };
 
@@ -43,8 +72,8 @@ export default function HomeScreen() {
             </View>
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Último Cliente Registrado</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Id: 6</Text>
-            <Text className='text-lg text-gray-300'>Nombre: Gibrán García</Text>
+            <Text className='text-lg text-gray-300 mt-2'>Nombre: {clients[size-1]?.Nombre}</Text>
+            <Text className='text-lg text-gray-300'>ID: {clients[size-1]?.ClienteID}</Text>
           </View>
         </View>
 
@@ -74,85 +103,24 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <ScrollView className='h-[30rem]'>
-            
-          <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[9%]'>
-                  <MaterialIcons name="person" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Ana Martínez</Text>
-                <Text className='text-gray-300'>ID: 1</Text>
-                <Text className='text-gray-300'>Teléfono: +123456789</Text>
-                <Text className='text-gray-300'>Correo: ana.martinez@email.com</Text>
-                <Text className='text-gray-300'>Dirección: Av. Central 45, Ciudad A, País</Text>
-              </View>
-            </View>
-            
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[9%]'>
-                  <MaterialIcons name="person" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Carlos Rodríguez</Text>
-                <Text className='text-gray-300'>ID: 2</Text>
-                <Text className='text-gray-300'>Teléfono: +123987654</Text>
-                <Text className='text-gray-300'>Correo: carlos.rodri@email.com</Text>
-                <Text className='text-gray-300'>Dirección: Calle Norte 56, Ciudad B, País</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[9%]'>
-                  <MaterialIcons name="person" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>María López</Text>
-                <Text className='text-gray-300'>ID: 3</Text>
-                <Text className='text-gray-300'>Teléfono: +123654789</Text>
-                <Text className='text-gray-300'>Correo: maria.lopez@email.com</Text>
-                <Text className='text-gray-300'>Dirección: Plaza Sur 78, Ciudad C, País</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[9%]'>
-                  <MaterialIcons name="person" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Luis Fernández</Text>
-                <Text className='text-gray-300'>ID: 4</Text>
-                <Text className='text-gray-300'>Teléfono: +123321987</Text>
-                <Text className='text-gray-300'>Correo: luis.fernandez@email.com</Text>
-                <Text className='text-gray-300'>Dirección: Av. del Sol 90, Ciudad D, País</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[9%]'>
-                  <MaterialIcons name="person" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Isabel García</Text>
-                <Text className='text-gray-300'>ID: 5</Text>
-                <Text className='text-gray-300'>Teléfono: +123789456</Text>
-                <Text className='text-gray-300'>Correo: isabel.garcia@email.com</Text>
-                <Text className='text-gray-300'>Dirección: Calle Verde 101, Ciudad E, País</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[9%]'>
-                  <MaterialIcons name="person" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Gibrán García</Text>
-                <Text className='text-gray-300'>ID: 6</Text>
-                <Text className='text-gray-300'>Teléfono: +123123456</Text>
-                <Text className='text-gray-300'>Correo: pedro.sanchez@email.com</Text>
-                <Text className='text-gray-300'>Dirección: Av. Libertad 32, Ciudad F, País</Text>
-              </View>
-            </View>
-
+          {clients.map((data, key) => {
+                    return (     
+                      <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
+                        <View className='w-[9%]'>
+                            <MaterialIcons name="person" size={32} color="white" />
+                        </View>
+                      <View>            
+                      <View className='ml-4 w-[95%]' key={key}>
+                        <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
+                        <Text className='text-gray-300'>ID: {data.ClienteID}</Text>
+                        <Text className='text-gray-300'>Teléfono: {data.Telefono}</Text>
+                        <Text className='text-gray-300'>Correo: {data.Correo}</Text>
+                        <Text className='text-gray-300'>Dirección: {data.Direccion}</Text>
+                      </View>
+                    </View>
+                  </View>
+              )
+            })}
           </ScrollView>
         </View>
       </ScrollView>
@@ -164,7 +132,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       <MenuItems  onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
-      <AddClient isOpen={addOpen} setIsOpen={setAddOpen}> </AddClient>
+      <AddClient isOpen={addOpen} setIsOpen={setAddOpen}/> 
     </View>
   );
 }
