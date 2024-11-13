@@ -28,12 +28,20 @@ const Sucursales = [
     { name: 'San Diego' },
 ]
 const Ordenar = [
+    { name: "ID - Menor a Mayor"},
+    { name: "ID - Mayor a Menor"},
     { name: "Precio - Menor a Mayor"},
     { name: "Precio - Mayor a Menor"},
     { name: "Cantidad - Menor a Mayor"},
     { name: "Cantidad - Mayor a Menor"},
     { name: "Nombre - A-Z"},
     { name: "Nombre - Z-A"}
+];
+const OrdenarClientes = [
+  { name: "ID - Menor a Mayor"},
+  { name: "ID - Mayor a Menor"},
+  { name: "Nombre - A-Z"},
+  { name: "Nombre - Z-A"}
 ];
   const [val, setVal] = React.useState('')
   const [items, setItems] = React.useState<Item[]>([
@@ -52,6 +60,9 @@ const Ordenar = [
     }
     else if (topic==='Seleccionar una forma de Ordenar') {
       setItems(Ordenar)
+    }
+    else if (topic==='Seleccionar una forma de Ordenar | Clientes') {
+      setItems(OrdenarClientes)
     }
   },[topic])
 

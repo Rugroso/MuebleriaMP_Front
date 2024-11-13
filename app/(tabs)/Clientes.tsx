@@ -15,15 +15,17 @@ export default function HomeScreen() {
   const [topic, setTopic] = React.useState('');
   const [size, setSize] = React.useState(0);
   const [clients, setClients] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
+  const [orderBy, setOrderBy] = React.useState('clienteID');
+  const [ascDesc, setascDesc] = React.useState('ASC');
 
   const fetchClients = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/clientes"
+        `http://localhost:3000/clientes?orderBy=${orderBy}&ascDesc=${ascDesc}`
       );
       const data = await response.json();
       if (Array.isArray(data)) {
-        const dropdownItems = [
+        const clientes = [
           ...data.map((event) => ({
             ClienteID: event.ClienteID,
             Nombre: event.Nombre,
@@ -32,8 +34,8 @@ export default function HomeScreen() {
             Direccion: event.Direccion,
           })),
         ];
-        setClients(dropdownItems);
-        setSize(dropdownItems.length)
+        setClients(clientes);
+        setSize(clientes.length)
       } else {
         console.error("Expected an array, received:", data);
         setClients([]);
@@ -45,11 +47,31 @@ export default function HomeScreen() {
 
   React.useEffect(()=> {
     fetchClients();
-  },[])
+  },[orderBy, ascDesc])
 
 
   const handleSelectionChange = (value:any, topic:string) => {
     setIsOpen(false);
+    console.log(value)
+    if (topic==='Seleccionar una forma de Ordenar | Clientes') {
+      if(value==='ID - Menor a Mayor') {
+        setOrderBy('ClienteID');
+        setascDesc('ASC');
+      }
+      else if(value==='ID - Mayor a Menor') {
+        setOrderBy('ClienteID');
+        setascDesc('DESC');
+      }
+      else if(value==='Nombre - A-Z') {
+        setOrderBy('Nombre');
+        setascDesc('ASC');
+      }
+      else if(value==='Nombre - Z-A') {
+        setOrderBy('Nombre');
+        setascDesc('DESC');
+      }
+      }
+      
   };
 
   const handleTouchable = (topic:string, itemsType:string) => {
@@ -72,8 +94,8 @@ export default function HomeScreen() {
             </View>
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Último Cliente Registrado</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Nombre: {clients[size-1]?.Nombre}</Text>
-            <Text className='text-lg text-gray-300'>ID: {clients[size-1]?.ClienteID}</Text>
+            <Text className='text-lg text-gray-300 mt-2'>Nombre: Sarah Williams</Text>
+            <Text className='text-lg text-gray-300'>ID: 10</Text>
           </View>
         </View>
 
@@ -96,7 +118,7 @@ export default function HomeScreen() {
             <Text className='text-xl font-semibold text-white mb-2'>
               Ordenar por
             </Text>
-            <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar', 'ordenar')}>
+            <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar | Clientes', 'ordenar')}>
               <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4'>
                 <MaterialIcons name="sort" size={18} color="white" />
               </View>
@@ -131,7 +153,7 @@ export default function HomeScreen() {
           </View>
         </TouchableOpacity>
       </View>
-      <MenuItems  onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
+      <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic}  />
       <AddClient isOpen={addOpen} setIsOpen={setAddOpen}/> 
     </View>
   );
