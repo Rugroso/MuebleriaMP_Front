@@ -5,6 +5,7 @@ import AddClient from '@/components/AddClient';
 
 
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { setConfig } from 'tamagui';
 
 
 export default function HomeScreen() {
@@ -15,6 +16,7 @@ export default function HomeScreen() {
   const [topic, setTopic] = React.useState('');
   const [size, setSize] = React.useState(0);
   const [clients, setClients] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
+  const [clientAvailable, setClientsAvailable] = React.useState(false)
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
 
@@ -36,11 +38,14 @@ export default function HomeScreen() {
         ];
         setClients(clientes);
         setSize(clientes.length)
+        setClientsAvailable(true)
       } else {
         console.error("Expected an array, received:", data);
+        setClientsAvailable(false)
         setClients([]);
       }
     } catch (error) {
+      setClientsAvailable(false)
       setClients([]);
     }
   };
@@ -129,7 +134,9 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
           </View>
-          <ScrollView className='h-[30rem]'>
+          <ScrollView className={`${clientAvailable ? 'h-[30rem]' : 'h-12'}`}>
+          {clientAvailable?
+          <View>
           {clients.map((data, key) => {
                     return (     
                       <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
@@ -148,6 +155,13 @@ export default function HomeScreen() {
                   </View>
               )
             })}
+            </View>
+          :          
+          <View className='flex h-full w-full items-center justify-center'>
+            <Text className='text-white text-2xl font-semibold'>DATOS CARGANDO...</Text>
+          </View>
+        }
+        
           </ScrollView>
         </View>
       </ScrollView>
