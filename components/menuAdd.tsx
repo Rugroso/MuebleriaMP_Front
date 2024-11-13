@@ -4,7 +4,6 @@ import { Adapt, Select, Sheet, YStack,  } from 'tamagui'
 import { LinearGradient } from 'tamagui/linear-gradient'
 
 interface MenuItemsProps {
-
   topic: string
 }
 interface Item {

@@ -45,9 +45,14 @@ export default function HomeScreen() {
     }
   };
 
-  React.useEffect(()=> {
-    fetchClients();
-  },[orderBy, ascDesc])
+  React.useEffect(() => {
+    const intervalId = setInterval(fetchClients, 1000);
+    return () => clearInterval(intervalId);
+  }, [orderBy, ascDesc]);
+
+  React.useEffect(() => {
+    fetchClients()
+  }, [orderBy, ascDesc]);
 
 
   const handleSelectionChange = (value:any, topic:string) => {
