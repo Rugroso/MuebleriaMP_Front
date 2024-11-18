@@ -16,16 +16,16 @@ interface Item {
 const MenuItems: React.FC<MenuItemsProps> = ({ onSelectionChange, isOpen, setIsOpen, topic }) => {  
 
 const Sucursales = [
-    { name: 'San Luis Río Colorado' },
-    { name: 'Mexicali' },
-    { name: 'Ensenada' },
-    { name: 'Tecate' },
-    { name: 'Rosarito' },
+    { name: 'CDMX' },
+    { name: 'Los Angeles' },
+    { name: 'Guadalajara' },
+    { name: 'Houston' },
+    { name: 'Monterrey' },
+    { name: 'Chicago' },
+    { name: 'Puebla' },
+    { name: 'New York' },
     { name: 'Tijuana' },
-    { name: 'Calexico' },
-    { name: 'Yuma' },
-    { name: 'El Centro' },
-    { name: 'San Diego' },
+    { name: 'San Francisco' },
 ]
 const Ordenar = [
     { name: "ID - Menor a Mayor"},

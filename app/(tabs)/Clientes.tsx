@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const fetchClients = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/clientes?orderBy=${orderBy}&ascDesc=${ascDesc}`
+        `https://d40c-2806-2f0-1081-fc76-c1b5-1075-253d-c071.ngrok-free.app/clientes?orderBy=${orderBy}&ascDesc=${ascDesc}`
       );
       const data = await response.json();
       if (Array.isArray(data)) {
@@ -37,7 +37,6 @@ export default function HomeScreen() {
           })),
         ];
         setClients(clientes);
-        setSize(clientes.length)
         setClientsAvailable(true)
       } else {
         console.error("Expected an array, received:", data);

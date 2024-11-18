@@ -10,12 +10,89 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
+  const [muebles, setMuebles] = React.useState<{ Nombre: string, Precio: number, cantidad: number } []>([]);
+  const [establecimiento, setEstablecimiento] = React.useState(1);
+  const [mueblesAvailable, setMueblesAvailable] = React.useState(false);
 
-  const [selectedSucursal, setSelectedSucursal] = React.useState('San Luis Río Colorado');
+  const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
+
+  const fetchInventario = async () => {
+    try{
+      const response = await fetch(
+        `https://d40c-2806-2f0-1081-fc76-c1b5-1075-253d-c071.ngrok-free.app/inventarioestablecimiento?id=${establecimiento}`
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const muebles = [
+          ...data.map((event) => ({
+            Nombre: event.Nombre,
+            Precio: event.Precio,
+            cantidad: event.cantidad,
+          })),
+        ];
+        setMuebles(muebles);
+        setMueblesAvailable(true);
+      } else{
+        console.error("Expected an array, received:", data);
+        setMueblesAvailable(false);
+        setMuebles([]);
+      }
+    } catch(e) {
+      setMueblesAvailable(false);
+      setMuebles([]);
+    }
+  };
+
+
+React.useEffect(() => {
+  fetchInventario(); // Fetch inicial
+  const intervalId = setInterval(fetchInventario, 1000);
+  return () => clearInterval(intervalId);
+}, [establecimiento]);
+
 
   const handleSelectionChange = (value:any, topic:string) => {
     if (topic==='Seleccionar una Sucursal') {
-      setSelectedSucursal(value);
+      if(value==='CDMX') {
+        setEstablecimiento(1)
+        setSelectedSucursal('CDMX')
+      }
+      if(value==='Los Angeles') {
+        setEstablecimiento(2)
+        setSelectedSucursal('Los Angeles')
+      }
+      if(value==='Guadalajara') {
+        setEstablecimiento(3)
+        setSelectedSucursal('Guadalajara')
+      }
+      if(value==='Houston') {
+        setEstablecimiento(4)
+        setSelectedSucursal('Houston')
+      }
+      if(value==='Monterrey') {
+        setEstablecimiento(5)
+        setSelectedSucursal('Monterrey')
+      }
+      if(value==='Chicago') {
+        setEstablecimiento(6)
+        setSelectedSucursal('Chicago')
+      }
+      if(value==='Puebla') {
+        setEstablecimiento(7)
+        setSelectedSucursal('Puebla')
+      }
+      if(value==='New York') {
+        setEstablecimiento(8)
+        setSelectedSucursal('New York')
+      }
+      if(value==='Tijuana') {
+        setEstablecimiento(9)
+        setSelectedSucursal('Tijuana')
+      }
+      if(value==='San Francisco') {
+        setEstablecimiento(10)
+        setSelectedSucursal('San Francisco')
+      }
     }
     setIsOpen(false);
   };
@@ -50,10 +127,9 @@ export default function HomeScreen() {
             </View>
           <View className='ml-4 w-[90%]'>
             <Text className='text-xl font-semibold text-white'>Último Mueble Añadido a Inventario</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Producto: Silla de Oficina</Text>
-            <Text className='text-lg text-gray-300'>Cantidad: 15</Text>
-            <Text className='text-lg text-gray-300'>Precio: $450.00</Text>
-            <Text className='text-lg text-gray-300'>Fecha: 03/11/2024</Text>
+            <Text className='text-lg text-gray-300 mt-2'>Producto: {muebles.at(-1)?.Nombre}</Text>
+            <Text className='text-lg text-gray-300'>Cantidad: {muebles.at(-1)?.cantidad}</Text>
+            <Text className='text-lg text-gray-300'>Precio: {muebles.at(-1)?.Precio}</Text>
           </View>
         </View>
 
@@ -68,74 +144,31 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
           </View>
-          <ScrollView className='h-[30rem]'>
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[32px]'>
+          <ScrollView className={`${mueblesAvailable ? 'h-[30rem]' : 'h-12'}`}>
+          {mueblesAvailable ?
+          <View>
+          {muebles.map((data) => {
+            return (
+              <View key={data.Nombre} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
+                <View className='w-[9%]'>
                   <MaterialIcons name="chair" size={32} color="white" />
+                </View>
+                <View>            
+                  <View className='ml-4 w-[95%]'>
+                    <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
+                    <Text className='text-gray-300'>Precio: {data.Precio}</Text>
+                    <Text className='text-gray-300'>Cantidad: {data.cantidad}</Text>
+                  </View>
+                </View>
               </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Silla de Oficina</Text>
-                <Text className='text-gray-300'>Precio: $450.00</Text>
-                <Text className='text-gray-300'>Cantidad: 15</Text>
-              </View>
-            </View>
-            
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[32px]'>
-                  <FontAwesome name="bed" size={27} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Cama Matrimonial</Text>
-                <Text className='text-gray-300'>Precio: $1200.00</Text>
-                <Text className='text-gray-300'>Cantidad: 8</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[32px]'>
-                  <MaterialIcons name="chair" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Sofá Seccional</Text>
-                <Text className='text-gray-300'>Precio: $3000.00</Text>
-                <Text className='text-gray-300'>Cantidad: 5</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[32px]'>
-                  <FontAwesome name="table" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Mesa de Comedor</Text>
-                <Text className='text-gray-300'>Precio: $900.00</Text>
-                <Text className='text-gray-300'>Cantidad: 10</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[32px]'>
-                  <FontAwesome name="book" size={32} color="white" />
-              </View>
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Estante para Libros</Text>
-                <Text className='text-gray-300'>Precio: $600.00</Text>
-                <Text className='text-gray-300'>Cantidad: 20</Text>
-              </View>
-            </View>
-
-            <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
-              <View className='w-[32px]'>
-                  <FontAwesome name="book" size={32} color="white" />
-              </View>
-
-              <View className='ml-4'>
-                <Text className='text-lg font-semibold text-white'>Estante para Libros</Text>
-                <Text className='text-gray-300'>Precio: $600.00</Text>
-                <Text className='text-gray-300'>Cantidad: 20</Text>
-              </View>
-            </View>
-
+            )
+          })}
+          </View>
+          :
+          <View className='flex h-full w-full items-center justify-center'>
+            <Text className='text-white text-2xl font-semibold'>DATOS CARGANDO...</Text>
+          </View>
+          }
           </ScrollView>
         </View>
       </ScrollView>
