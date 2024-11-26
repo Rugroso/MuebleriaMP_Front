@@ -157,7 +157,7 @@ React.useEffect(() => {
               </View>
             </TouchableOpacity>
           </View>
-          <ScrollView className={`${inventarioAvailable ? 'h-[30rem]' : 'h-12'}`}>
+          <ScrollView className={`${inventarioAvailable ? 'h-[30rem]' : 'h-12'} bg-stone-900 p-4 rounded-2xl`}>
           {inventarioAvailable ?
           <View>
           {inventario.map((data) => {
@@ -185,7 +185,7 @@ React.useEffect(() => {
           </View>
           :
           <View className='flex h-full w-full items-center justify-center'>
-            <Text className='text-white text-2xl font-semibold'>DATOS CARGANDO...</Text>
+            <Text className='text-white font-semibold'>DATOS CARGANDO...</Text>
           </View>
           }
           </ScrollView>

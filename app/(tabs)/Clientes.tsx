@@ -134,12 +134,12 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
           </View>
-          <ScrollView className={`${clientAvailable ? 'h-[30rem]' : 'h-12'}`}>
+          <ScrollView className={`${clientAvailable ? 'h-[30rem]' : 'h-12'} bg-stone-900 p-4 rounded-2xl`}>
           {clientAvailable?
-          <View>
+          <View >
           {clients.map((data, key) => {
                     return (     
-                      <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
+                      <View key={key} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
                         <View className='w-[9%]'>
                             <MaterialIcons name="person" size={32} color="white" />
                         </View>
@@ -158,7 +158,7 @@ export default function HomeScreen() {
             </View>
           :          
           <View className='flex h-full w-full items-center justify-center'>
-            <Text className='text-white text-2xl font-semibold'>DATOS CARGANDO...</Text>
+            <Text className='text-white font-semibold'>DATOS CARGANDO...</Text>
           </View>
         }
         

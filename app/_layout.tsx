@@ -36,22 +36,22 @@ export default function RootLayout() {
           <Stack
             screenOptions={{
               headerShown: false,
-              animation: 'slide_from_right', // Añade animación de transición
-              contentStyle: { backgroundColor: 'transparent' }, // Fondo transparente para transiciones suaves
+              animation: 'slide_from_right',
+              contentStyle: { backgroundColor: 'transparent' },
             }}
           >
             <Stack.Screen 
               name="(tabs)" 
               options={{ 
                 headerShown: false,
-                animation: 'none' // Deshabilita la animación para las tabs
+                animation: 'fade' 
               }} 
             />
             <Stack.Screen 
               name="+not-found" 
               options={{ 
                 headerShown: false,
-                presentation: 'modal' // Presentación modal para not-found
+                presentation: 'modal' 
               }} 
             />
           </Stack>

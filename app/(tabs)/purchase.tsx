@@ -192,7 +192,7 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
           </View>
-          <ScrollView className={`${comprasAvailable ? 'h-[30rem]': 'h-12'}`}>
+          <ScrollView className={`${comprasAvailable ? 'h-[30rem]': 'h-12'} bg-stone-900 p-4 rounded-2xl`}>
           {comprasAvailable ? 
             <View>
               {compras.map((data, index) => {
@@ -224,7 +224,7 @@ export default function HomeScreen() {
             </View>
           :
           <View className='flex h-full w-full items-center justify-center'>
-            <Text className='text-white text-2xl font-semibold'>DATOS CARGANDO...</Text>
+            <Text className='text-white font-semibold'>DATOS CARGANDO...</Text>
           </View>
           }
           </ScrollView>
