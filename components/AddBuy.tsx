@@ -1,89 +1,90 @@
-import { X } from '@tamagui/lucide-icons'
-import MenuAdd from './menuAdd';
-import { View } from 'react-native';
-import { SelectDemo } from './SelectDemo';
-import DropDownPicker from 'react-native-dropdown-picker'; // Importamos DropDownPicker
+import React, { useState } from 'react';
 import {
-  Adapt,
-  Button,
-  Dialog,
-  Fieldset,
-  Label,
-  Sheet,
-  Unspaced,
-  XStack,
-  Input
-} from 'tamagui'
-import { useState } from 'react';
+  View,
+  Text,
+  Modal,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  StyleSheet,
+} from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { FontAwesome } from '@expo/vector-icons';
 
 interface MenuItemsProps {
   setIsOpen: (value: boolean) => void;
-  isOpen: boolean; 
+  isOpen: boolean;
 }
 
-const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {  
+const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
   const [open, setOpen] = useState(false);
   const [openDistribuidor, setOpenDistribuidor] = useState(false);
-  const [selectedFurniture, setSelectedFurniture] = useState(null);
-  const [selectedDistribuidor, setSelectedDistribuidor] = useState(null);
+  const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
+  const [selectedDistribuidor, setSelectedDistribuidor] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState('');
   const [furnitureOptions, setFurnitureOptions] = useState([
     { label: 'Silla', value: 'chair' },
     { label: 'Mesa', value: 'table' },
     { label: 'Sofá', value: 'sofa' },
-    { label: 'Cama', value: 'bed' }
+    { label: 'Cama', value: 'bed' },
+  ]);
+  const [distribuidorOptions, setDistribuidorOptions] = useState([
+    { label: 'Distribuidor A', value: 'distributor_a' },
+    { label: 'Distribuidor B', value: 'distributor_b' },
+    { label: 'Distribuidor C', value: 'distributor_c' },
   ]);
 
+  const handleSubmit = () => {
+    if (!selectedFurniture || !selectedDistribuidor || !quantity) {
+      Alert.alert('Error', 'Por favor, llena todos los campos.');
+      return;
+    }
+
+    const buyData = {
+      furniture: selectedFurniture,
+      distributor: selectedDistribuidor,
+      quantity,
+    };
+
+    console.log('Datos de la compra:', buyData);
+    Alert.alert('Éxito', 'La compra fue registrada exitosamente.');
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setSelectedFurniture(null);
+    setSelectedDistribuidor(null);
+    setQuantity('');
+    setIsOpen(false);
+  };
+
   return (
-    <Dialog modal open={isOpen} onOpenChange={setIsOpen} >
-      <Adapt when="sm" platform="touch" >
-        <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom >
-          <Sheet.Frame padding="$4" gap="$4" backgroundColor={'#292524'}>
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isOpen}
+      onRequestClose={() => setIsOpen(false)}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.modalContainer}>
+          <ScrollView>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.title}>Añadir una Compra</Text>
+              <TouchableOpacity onPress={() => setIsOpen(false)}>
+                <FontAwesome name="close" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
 
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="slow"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
+            {/* Descripción */}
+            <Text style={styles.description}>
+              Llena el formulario para añadir una compra
+            </Text>
 
-        <Dialog.Content
-          bordered
-          elevate
-          key="content" 
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title color={'white'} fontSize={'30px'} fontWeight={500}>Añadir una compra</Dialog.Title>
-          <Dialog.Description color={'white'} >
-            Llena el formulario para añadir una compra
-          </Dialog.Description >
-
-          <Fieldset gap="$4" horizontal zIndex={3000}>
-            <Label color={'white'} width={180} justifyContent="flex-end" htmlFor="furniture">
-              Muebles disponibles
-            </Label>
-            <View className='w-full z-[3000]'>
+            {/* Campo: Muebles disponibles */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Muebles disponibles</Text>
               <DropDownPicker
                 open={open}
                 value={selectedFurniture}
@@ -91,93 +92,129 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
                 setOpen={setOpen}
                 setValue={setSelectedFurniture}
                 setItems={setFurnitureOptions}
-                placeholder="Ej: Silla"
-                style={{
-                  width:"50%",
-                  backgroundColor: '#292524',
-                  borderColor: '#4b5563',
-                }}
-                dropDownContainerStyle={{
-                  width:"50%",
-                  backgroundColor: '#292324',
-                  borderColor: '#4b5563',
-                }}
-                textStyle={{
-                  color: 'white',
-                }}
-                placeholderStyle={{
-                  color: 'gray',
-                }}
-                zIndex={3000}
+                placeholder="Selecciona un mueble"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                textStyle={styles.dropdownText}
+                placeholderStyle={styles.dropdownPlaceholder}
               />
             </View>
-          </Fieldset>
-          <Fieldset gap="$4" horizontal zIndex={2000}>
-            <Label color={'white'} width={180} justifyContent="flex-end" htmlFor="furniture">
-              Distribuidores Disponibles
-            </Label>
-            <View className='w-full z-[2000]'>
+
+            {/* Campo: Distribuidores disponibles */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Distribuidores Disponibles</Text>
               <DropDownPicker
                 open={openDistribuidor}
                 value={selectedDistribuidor}
-                items={furnitureOptions}
+                items={distribuidorOptions}
                 setOpen={setOpenDistribuidor}
                 setValue={setSelectedDistribuidor}
-                setItems={setFurnitureOptions}
-                placeholder="Ej: Trimble"
-                style={{
-                  width:"50%",
-                  backgroundColor: '#292524',
-                  borderColor: '#4b5563',
-                }}
-                dropDownContainerStyle={{
-                  width:"50%",
-                  backgroundColor: '#292324',
-                  borderColor: '#4b5563',
-                }}
-                textStyle={{
-                  color: 'white',
-                }}
-                placeholderStyle={{
-                  color: 'gray',
-                }}
-                zIndex={2000}
+                setItems={setDistribuidorOptions}
+                placeholder="Selecciona un distribuidor"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                textStyle={styles.dropdownText}
+                placeholderStyle={styles.dropdownPlaceholder}
               />
             </View>
-            
-          </Fieldset>
 
-          <Fieldset gap="$4" horizontal zIndex={1000}>
-            <Label  color={'white'} width={180} justifyContent="flex-end" htmlFor="furniture">
-              Cantidad
-            </Label>
-            <Input keyboardType='numeric' flex={1} placeholder='Ej: 10' backgroundColor={'#292524'} borderColor={'#4b5563'} color={'white'} borderWidth={1} zIndex={-20}/>
-          </Fieldset>
-
-          <XStack alignSelf="flex-end" gap="$4" zIndex={-10}>
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button theme="active" aria-label="Close">
-                COMPRAR
-              </Button>
-            </Dialog.Close>
-          </XStack>
-
-          <Unspaced>
-            <Dialog.Close asChild>
-              <Button
-                position="absolute"
-                top="$3"
-                right="$3"
-                size="$2"
-                circular
-                icon={X}
+            {/* Campo: Cantidad */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Cantidad</Text>
+              <TextInput
+                style={styles.input}
+                value={quantity}
+                onChangeText={setQuantity}
+                placeholder="Ej: 10"
+                placeholderTextColor="#666"
+                keyboardType="numeric"
               />
-            </Dialog.Close>
-          </Unspaced>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  )
-}
+            </View>
+
+            {/* Botón: Confirmar compra */}
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+              <Text style={styles.submitButtonText}>COMPRAR</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 export default AddBuy;
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '90%',
+    maxHeight: '80%',
+    backgroundColor: '#1c1c1e',
+    borderRadius: 16,
+    padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: 'white',
+  },
+  description: {
+    fontSize: 16,
+    color: '#aaa',
+    marginBottom: 20,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    color: 'white',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: '#2c2c2e',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: 'white',
+    borderWidth: 1,
+    borderColor: '#3a3a3c',
+  },
+  dropdown: {
+    backgroundColor: '#292524',
+    borderColor: '#4b5563',
+  },
+  dropdownContainer: {
+    backgroundColor: '#292524',
+    borderColor: '#4b5563',
+  },
+  dropdownText: {
+    color: 'white',
+  },
+  dropdownPlaceholder: {
+    color: 'gray',
+  },
+  submitButton: {
+    backgroundColor: '#4a4a4c',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+  },
+});

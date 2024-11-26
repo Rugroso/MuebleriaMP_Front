@@ -10,42 +10,46 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [muebles, setMuebles] = React.useState<{ Nombre: string, Precio: number, cantidad: number } []>([]);
-  const [establecimiento, setEstablecimiento] = React.useState(1);
-  const [mueblesAvailable, setMueblesAvailable] = React.useState(false);
+  const [inventario, setInventario] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Date } []>([]);
+  const [establecimiento, setEstablecimiento] = React.useState(9);
+  const [orderBy, setOrderBy] = React.useState('clienteID');
+  const [ascDesc, setascDesc] = React.useState('ASC');
+  const [inventarioAvailable, setinventarioAvailable] = React.useState(false);
 
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
 
   const fetchInventario = async () => {
     try{
       const response = await fetch(
-        `https://d40c-2806-2f0-1081-fc76-c1b5-1075-253d-c071.ngrok-free.app/inventarioestablecimiento?id=${establecimiento}`
+        `http://localhost:3000/comprasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=${orderBy}&ascDesc=${ascDesc}`
       );
       const data = await response.json();
       if (Array.isArray(data)) {
-        const muebles = [
+        const inventario = [
           ...data.map((event) => ({
-            Nombre: event.Nombre,
+            Cantidad: event.Cantidad,
+            Nombre_Mueble: event.Nombre_Mueble,
             Precio: event.Precio,
-            cantidad: event.cantidad,
+            Nombre_Distribuidor: event.Nombre_Distribuidor,
+            FechaCompra: event.FechaCompra
           })),
         ];
-        setMuebles(muebles);
-        setMueblesAvailable(true);
+        setInventario(inventario);
+        setinventarioAvailable(true);
       } else{
         console.error("Expected an array, received:", data);
-        setMueblesAvailable(false);
-        setMuebles([]);
+        setinventarioAvailable(false);
+        setInventario([]);
       }
     } catch(e) {
-      setMueblesAvailable(false);
-      setMuebles([]);
+      setinventarioAvailable(false);
+      setInventario([]);
     }
   };
 
 
 React.useEffect(() => {
-  fetchInventario(); // Fetch inicial
+  fetchInventario();
   const intervalId = setInterval(fetchInventario, 1000);
   return () => clearInterval(intervalId);
 }, [establecimiento]);
@@ -103,7 +107,7 @@ React.useEffect(() => {
   }
 
   return (
-    <View className='w-full h-full flex items-center justify-center bg-slate-700'>
+    <View className='w-full h-full flex items-center justify-center bg-slate-800'>
       <View className='h-[12%] w-full bg-stone-800 flex items-center justify-center'>
         <Text className='text-2xl font-semibold text-white mt-[11%]'>
           Inventario
@@ -121,43 +125,58 @@ React.useEffect(() => {
           </TouchableOpacity>
         </View>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center shadow-lg' >
             <View className='w-[32px]'>
                 <MaterialIcons name="chair" size={32} color="white" />
             </View>
           <View className='ml-4 w-[90%]'>
-            <Text className='text-xl font-semibold text-white'>Último Mueble Añadido a Inventario</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Producto: {muebles.at(-1)?.Nombre}</Text>
-            <Text className='text-lg text-gray-300'>Cantidad: {muebles.at(-1)?.cantidad}</Text>
-            <Text className='text-lg text-gray-300'>Precio: {muebles.at(-1)?.Precio}</Text>
+            <Text className='text-xl font-bold text-white'>Último Mueble Añadido a Inventario</Text>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
+              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Nombre_Mueble}</Text>
+            </View>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
+              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Cantidad}</Text>
+            </View>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
+              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Precio}</Text>
+            </View>
           </View>
         </View>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-10'>
+        <View className='bg-stone-800 p-4 rounded-lg mb-10 shadow-lg'>
           <View className='flex flex-row'>
             <Text className='text-xl font-semibold text-white mb-2'>
               Ordenar por
             </Text>
             <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar', 'ordenar')}>
-              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4'>
+              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4 shadow-md'>
                 <MaterialIcons name="sort" size={18} color="white" />
               </View>
             </TouchableOpacity>
           </View>
-          <ScrollView className={`${mueblesAvailable ? 'h-[30rem]' : 'h-12'}`}>
-          {mueblesAvailable ?
+          <ScrollView className={`${inventarioAvailable ? 'h-[30rem]' : 'h-12'}`}>
+          {inventarioAvailable ?
           <View>
-          {muebles.map((data) => {
+          {inventario.map((data) => {
             return (
-              <View key={data.Nombre} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
+              <View key={`${data.Nombre_Mueble}-${data.FechaCompra}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-md'>
                 <View className='w-[9%]'>
                   <MaterialIcons name="chair" size={32} color="white" />
                 </View>
                 <View>            
                   <View className='ml-4 w-[95%]'>
-                    <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
-                    <Text className='text-gray-300'>Precio: {data.Precio}</Text>
-                    <Text className='text-gray-300'>Cantidad: {data.cantidad}</Text>
+                    <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
+                    <View className='flex flex-row'>
+                      <Text className='text-gray-300 mr-1'>Precio:</Text>
+                      <Text className='text-white font-semibold'>{data.Precio}</Text>
+                    </View>
+                    <View className='flex flex-row'>
+                      <Text className='text-gray-300 mr-1'>Cantidad:</Text>
+                      <Text className='text-white font-semibold'>{data.Cantidad}</Text>
+                    </View>
                   </View>
                 </View>
               </View>

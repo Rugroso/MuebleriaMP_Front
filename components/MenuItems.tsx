@@ -1,21 +1,30 @@
-import React from 'react';
-import { Check, ChevronUp } from '@tamagui/lucide-icons'
-import { Adapt, Select, Sheet, YStack,  } from 'tamagui'
-import { LinearGradient } from 'tamagui/linear-gradient'
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+} from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
 interface MenuItemsProps {
-  onSelectionChange: (value: string, topic:string) => void;
-  isOpen: boolean; 
+  onSelectionChange: (value: string, topic: string) => void;
+  isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  topic: string
+  topic: string;
 }
+
 interface Item {
   name: string;
-};
+}
 
-const MenuItems: React.FC<MenuItemsProps> = ({ onSelectionChange, isOpen, setIsOpen, topic }) => {  
+const MenuItems: React.FC<MenuItemsProps> = ({ onSelectionChange, isOpen, setIsOpen, topic }) => {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [items, setItems] = useState<Item[]>([{ name: 'Test' }]);
 
-const Sucursales = [
+  const Sucursales = [
     { name: 'CDMX' },
     { name: 'Los Angeles' },
     { name: 'Guadalajara' },
@@ -26,122 +35,87 @@ const Sucursales = [
     { name: 'New York' },
     { name: 'Tijuana' },
     { name: 'San Francisco' },
-]
-const Ordenar = [
-    { name: "ID - Menor a Mayor"},
-    { name: "ID - Mayor a Menor"},
-    { name: "Precio - Menor a Mayor"},
-    { name: "Precio - Mayor a Menor"},
-    { name: "Cantidad - Menor a Mayor"},
-    { name: "Cantidad - Mayor a Menor"},
-    { name: "Nombre - A-Z"},
-    { name: "Nombre - Z-A"}
-];
-const OrdenarClientes = [
-  { name: "ID - Menor a Mayor"},
-  { name: "ID - Mayor a Menor"},
-  { name: "Nombre - A-Z"},
-  { name: "Nombre - Z-A"}
-];
-  const [val, setVal] = React.useState('')
-  const [items, setItems] = React.useState<Item[]>([
-    { name: 'Test' },
-  ]);
+  ];
+
+  const Ordenar = [
+    { name: "Fecha - Menor a Mayor" },
+    { name: "Fecha - Mayor a Menor" },
+    { name: "Precio - Menor a Mayor" },
+    { name: "Precio - Mayor a Menor" },
+    { name: "Cantidad - Menor a Mayor" },
+    { name: "Cantidad - Mayor a Menor" },
+    { name: "Nombre - A-Z" },
+    { name: "Nombre - Z-A" }
+  ];
+
+  const OrdenarClientes = [
+    { name: "ID - Menor a Mayor" },
+    { name: "ID - Mayor a Menor" },
+    { name: "Nombre - A-Z" },
+    { name: "Nombre - Z-A" }
+  ];
 
 
-  const handleValueChange = (value:any) => {
-    setVal(value);
+  const handleSelect = (value: string) => {
+    setSelectedValue(value);
     onSelectionChange(value, topic);
+    setIsOpen(false);
   };
 
-  React.useEffect(()=> {
-    if (topic==='Seleccionar una Sucursal') {
-      setItems(Sucursales)
+  useEffect(() => {
+    if (topic === 'Seleccionar una Sucursal') {
+      setItems(Sucursales);
     }
-    else if (topic==='Seleccionar una forma de Ordenar') {
-      setItems(Ordenar)
+    else if (topic === 'Seleccionar una forma de Ordenar') {
+      setItems(Ordenar);
     }
-    else if (topic==='Seleccionar una forma de Ordenar | Clientes') {
-      setItems(OrdenarClientes)
+    else if (topic === 'Seleccionar una forma de Ordenar | Clientes') {
+      setItems(OrdenarClientes);
     }
-  },[topic])
+  }, [topic]);
 
   return (
-    <Select value={val} onValueChange={handleValueChange} open={isOpen} onOpenChange={setIsOpen}>
-          <Adapt platform="touch">
-            <Sheet
-              native={false}
-              modal
-              dismissOnSnapToBottom
-              animationConfig={{
-                type: 'spring',
-                damping: 100,
-                mass: 1,
-                stiffness: 250,
-              }}
-            >
-              
-              <Sheet.Frame backgroundColor={'#292524'}>
-                <Sheet.ScrollView>
-                  <Adapt.Contents />
-                </Sheet.ScrollView>
-              </Sheet.Frame>
-              <Sheet.Overlay
-                animation="lazy"
-                enterStyle={{ opacity: 0 }}
-                exitStyle={{ opacity: 0 }}
-              />
-            </Sheet>
-          </Adapt>
-
-          <Select.Content zIndex={200000} >
-            <Select.ScrollUpButton
-              alignItems="center"
-              justifyContent="center"
-              position="relative"
-              width="100%"
-              height="$3"
-            >
-              <YStack zIndex={10}>
-                <ChevronUp size={20} />
-              </YStack>
-              <LinearGradient
-                start={[0, 0]}
-                end={[0, 1]}
-                fullscreen
-                colors={['$background', 'transparent']}
-                borderRadius="$4"
-              />
-            </Select.ScrollUpButton>
-
-            <Select.Viewport
-              minWidth={200}
-            >
-              <Select.Group>
-                <Select.Label backgroundColor={'#262220'} color={'white'}>{`${topic}`}</Select.Label>
-                {React.useMemo(
-                  () =>
-                    items.map((item, i) => {
-                      return (
-                        <Select.Item
-                          backgroundColor={'#292524'}
-                          index={i}
-                          key={item.name}
-                          value={item.name}
-                        >
-                          <Select.ItemText backgroundColor={'transparent'} color={'white'}>{item.name}</Select.ItemText>
-                          <Select.ItemIndicator backgroundColor={'#292524'} marginLeft="auto">
-                            <Check size={16} color={'white'}/>
-                          </Select.ItemIndicator>
-                        </Select.Item>
-                      )
-                    }),
-                  [items]
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isOpen}
+      onRequestClose={() => setIsOpen(false)}
+    >
+      <SafeAreaView style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+        <View style={{ backgroundColor: '#1c1c1e', borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#3a3a3c' }}>
+            <Text style={{ color: '#fff', fontSize: 18, fontWeight: '500' }}>{topic}</Text>
+            <TouchableOpacity onPress={() => setIsOpen(false)} style={{ padding: 8 }}>
+              <FontAwesome name="close" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView style={{ maxHeight: 400 }}>
+            {items.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: 16,
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#3a3a3c',
+                  backgroundColor: selectedValue === item.name ? '#2c2c2e' : 'transparent',
+                }}
+                onPress={() => handleSelect(item.name)}
+              >
+                <Text style={{ color: '#fff', fontSize: 16 }}>{item.name}</Text>
+                {selectedValue === item.name && (
+                  <FontAwesome name="check" size={20} color="white" />
                 )}
-              </Select.Group>
-            </Select.Viewport>
-          </Select.Content>
-        </Select>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </SafeAreaView>
+    </Modal>
   );
-}
-export default MenuItems
+};
+
+export default MenuItems;

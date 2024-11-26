@@ -13,22 +13,24 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_CLIENTE: string, FechaVENTA: Date}[]>([]);
+  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Date}[]>([]);
   const [ventasAvailable, setVentasAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(1);
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
+  const [orderBy, setOrderBy] = React.useState('clienteID');
+  const [ascDesc, setascDesc] = React.useState('ASC');
 
 
   const fetchVentas = async () => {
     try {
       const response = await fetch(
-        `https://d40c-2806-2f0-1081-fc76-c1b5-1075-253d-c071.ngrok-free.app/ventasestablecimiento?id=${establecimiento}`
+        `http://localhost:3000/ventasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=${orderBy}&ascDesc=${ascDesc}`
       );
       const data = await response.json();
       if (Array.isArray(data)) {
         const ventas = data.map((event) => ({
           ...event,
-          FechaVENTA: new Date(event.FechaVENTA)
+          FechaVenta: new Date(event.FechaVenta)
         }));
         setVentas(ventas);
         setVentasAvailable(true);
@@ -47,7 +49,13 @@ export default function HomeScreen() {
     fetchVentas();
     const intervalId = setInterval(fetchVentas, 1000); 
     return () => clearInterval(intervalId);
-  }, [establecimiento]);
+  }, [establecimiento, orderBy, ascDesc]);
+
+  React.useEffect(() => {
+    console.log(orderBy);
+    console.log(ascDesc)
+    fetchVentas();
+  }, [orderBy, ascDesc]);
 
   const handleSelectionChange = (value:any, topic:string) => {
     if (topic==='Seleccionar una Sucursal') {
@@ -92,6 +100,35 @@ export default function HomeScreen() {
         setSelectedSucursal('San Francisco')
       }
     }
+    if (topic === 'Seleccionar una forma de Ordenar') {
+      if (value === 'Fecha - Menor a Mayor') {
+        setOrderBy('FechaVenta');
+        setascDesc('ASC');
+      }
+      else if (value === 'Fecha - Mayor a Menor') {
+        setOrderBy('FechaVenta');
+        setascDesc('DESC');
+      }
+      else if (value === 'Precio - Menor a Mayor') {
+        setOrderBy('Precio');
+        setascDesc('ASC');
+      } else if (value === 'Precio - Mayor a Menor') {
+        setOrderBy('Precio');
+        setascDesc('DESC');
+      } else if (value === 'Cantidad - Menor a Mayor') {
+        setOrderBy('Cantidad');
+        setascDesc('ASC');
+      } else if (value === 'Cantidad - Mayor a Menor') {
+        setOrderBy('Cantidad');
+        setascDesc('DESC');
+      } else if (value === 'Nombre - A-Z') {
+        setOrderBy('Nombre');
+        setascDesc('ASC');
+      } else if (value === 'Nombre - Z-A') {
+        setOrderBy('Nombre');
+        setascDesc('DESC');
+      }
+    }
     setIsOpen(false);
   };
 
@@ -101,7 +138,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className='w-full h-full flex items-center justify-center bg-slate-700'>
+    <View className='w-full h-full flex items-center justify-center bg-slate-800'>
       <View className='h-[12%] w-full bg-stone-800 flex items-center justify-center'>
         <Text className='text-2xl font-semibold text-white mt-[11%]'>
           Ventas
@@ -119,7 +156,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center shadow-lg'>
             <View className='w-[9%]'>
                 <MaterialIcons name="chair" size={32} color="white" />
             </View>
@@ -127,29 +164,53 @@ export default function HomeScreen() {
             <Text className='text-xl font-semibold text-white'>Último Mueble Vendido</Text>
             {ventasAvailable && ventas.length > 0 ? (
               <>
-                <Text className='text-lg text-gray-300 mt-2'>Producto: {ventas.at(-1)?.Nombre_Mueble}</Text>
-                <Text className='text-lg text-gray-300'>Cantidad: {ventas.at(-1)?.Cantidad}</Text>
-                <Text className='text-lg text-gray-300'>Precio: ${ventas.at(-1)?.Precio}</Text>
-                <Text className='text-lg text-gray-300'>Fecha: {ventas.at(-1)?.FechaVENTA.toLocaleDateString()}</Text>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
+                  <Text className='text-white font-semibold text-lg'>{ventas.at(-1)?.Nombre_Mueble}</Text>
+                </View>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
+                  <Text className='text-white font-semibold text-lg'>{ventas.at(-1)?.Cantidad}</Text>
+                </View>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
+                  <Text className='text-white font-semibold text-lg'>${ventas.at(-1)?.Precio}</Text>
+                </View>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
+                  <Text className='text-white font-semibold text-lg'>{ventas.at(-1)?.FechaVenta.toLocaleDateString()}</Text>
+                </View>
               </>
             ) : (
               <>
-                <Text className='text-lg text-gray-300 mt-2'>Producto: Cargando...</Text>
-                <Text className='text-lg text-gray-300'>Cantidad: Cargando...</Text>
-                <Text className='text-lg text-gray-300'>Precio: Cargando...</Text>
-                <Text className='text-lg text-gray-300'>Fecha: Cargando...</Text>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
+                  <Text className='text-white font-semibold text-lg'>Cargando...</Text>
+                </View>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
+                  <Text className='text-white font-semibold text-lg'>Cargando...</Text>
+                </View>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
+                  <Text className='text-white font-semibold text-lg'>Cargando...</Text>
+                </View>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
+                  <Text className='text-white font-semibold text-lg'>Cargando...</Text>
+                </View>
               </>
             )}
           </View>
         </View>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-10'>
+        <View className='bg-stone-800 p-4 rounded-lg mb-10 shadow-lg'>
           <View className='flex flex-row'>
             <Text className='text-xl font-semibold text-white mb-2'>
               Ordenar por
             </Text>
             <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar', 'ordenar')}>
-              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4'>
+              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4 shadow-md'>
                 <MaterialIcons name="sort" size={18} color="white" />
               </View>
             </TouchableOpacity>
@@ -159,17 +220,29 @@ export default function HomeScreen() {
               <View>
                 {ventas.map((data) => {
                   return (
-                    <View key={`${data.Nombre_Mueble}-${data.FechaVENTA.getTime()}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
+                    <View key={`${data.Nombre_Mueble}-${data.FechaVenta.getTime()}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
                       <View className='w-[9%]'>
                         <MaterialIcons name="shopping-cart" size={32} color="white" />
                       </View>
                       <View>            
                         <View className='ml-4 w-[95%]'>
-                          <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
-                          <Text className='text-gray-300'>Cliente: {data.Nombre_CLIENTE}</Text>
-                          <Text className='text-gray-300'>Cantidad: {data.Cantidad}</Text>
-                          <Text className='text-gray-300'>Precio: ${data.Precio}</Text>
-                          <Text className='text-gray-300'>Fecha: {data.FechaVENTA.toLocaleDateString()}</Text>
+                        <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Cliente:</Text>
+                          <Text className='text-white font-semibold'>{data.Nombre_Cliente}</Text>
+                        </View>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Cantidad:</Text>
+                          <Text className='text-white font-semibold'>{data.Cantidad}</Text>
+                        </View>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Precio:</Text>
+                          <Text className='text-white font-semibold'>${data.Precio}</Text>
+                        </View>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Fecha:</Text>
+                          <Text className='text-white font-semibold'>{data.FechaVenta.toLocaleDateString()}</Text>
+                        </View>
                         </View>
                       </View>
                     </View>
@@ -186,12 +259,12 @@ export default function HomeScreen() {
       </ScrollView>
       <View className='absolute bottom-0 right-0'>
         <TouchableOpacity onPress={() => setAddOpen(true)}>
-          <View className=' bg-slate-500 rounded-full mb-3 mr-3'>
+          <View className=' bg-slate-500 rounded-full mb-3 mr-3 shadow-md'>
             <MaterialIcons name="add" size={48} color="white"/>
           </View>
         </TouchableOpacity>
       </View>
-      <MenuItems  onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
+      <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
       <AddSale isOpen={addOpen} setIsOpen={setAddOpen}></AddSale>
     </View>
   );

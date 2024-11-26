@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const fetchClients = async () => {
     try {
       const response = await fetch(
-        `https://d40c-2806-2f0-1081-fc76-c1b5-1075-253d-c071.ngrok-free.app/clientes?orderBy=${orderBy}&ascDesc=${ascDesc}`
+        `http://localhost:3000/clientes?orderBy=${orderBy}&ascDesc=${ascDesc}`
       );
       const data = await response.json();
       if (Array.isArray(data)) {
@@ -80,6 +80,7 @@ export default function HomeScreen() {
         setascDesc('DESC');
       }
       }
+
       
   };
 
@@ -89,7 +90,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className='w-full h-full flex items-center justify-center bg-slate-700'>
+    <View className='w-full h-full flex items-center justify-center bg-slate-800'>
       <View className='h-[12%] w-full bg-stone-800 flex items-center justify-center'>
         <Text className='text-2xl font-semibold text-white mt-[11%]'>
           Clientes
@@ -97,7 +98,7 @@ export default function HomeScreen() {
       </View>
       <ScrollView className='p-5 flex-1 w-full'>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center shadow-lg'>
             <View className='w-[9%]'>
                 <MaterialIcons name="person" size={32} color="white" />
             </View>
@@ -109,12 +110,12 @@ export default function HomeScreen() {
         </View>
 
         <View className='rounded-lg mb-4 flex-row items-center justify-start w-screen'>
-        <View className='mr-4 p-4 bg-stone-800 rounded-lg w-[44%]'>
+        <View className='mr-4 p-4 bg-stone-800 rounded-lg w-[44%] shadow-lg'>
             <Text className='text-xl font-semibold text-white'>MX</Text>
             <Text className='text-lg text-gray-300 mt-2'>Núm. de Clientes: 6</Text>
             <Text className='text-lg text-gray-300 mt-2'>Compras Totales: 54</Text>
           </View>
-          <View className='p-4 bg-stone-800 rounded-lg w-[44%]'>
+          <View className='p-4 bg-stone-800 rounded-lg w-[44%] shadow-lg'>
             <Text className='text-xl font-semibold text-white'>USA</Text>
             <Text className='text-lg text-gray-300 mt-2'>Núm. de Clientes: 6</Text>
             <Text className='text-lg text-gray-300 mt-2'>Compras Totales: 54</Text>
@@ -122,13 +123,13 @@ export default function HomeScreen() {
         </View>
 
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-10'>
+        <View className='bg-stone-800 p-4 rounded-lg mb-10 shadow-lg'>
           <View className='flex flex-row'>
             <Text className='text-xl font-semibold text-white mb-2'>
               Ordenar por
             </Text>
             <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar | Clientes', 'ordenar')}>
-              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4'>
+              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4 shadow-md'>
                 <MaterialIcons name="sort" size={18} color="white" />
               </View>
             </TouchableOpacity>
@@ -138,7 +139,7 @@ export default function HomeScreen() {
           <View>
           {clients.map((data, key) => {
                     return (     
-                      <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
+                      <View className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
                         <View className='w-[9%]'>
                             <MaterialIcons name="person" size={32} color="white" />
                         </View>
@@ -166,12 +167,12 @@ export default function HomeScreen() {
       </ScrollView>
       <View className='absolute bottom-0 right-0'>
         <TouchableOpacity onPress={() => setAddOpen(true)}>
-          <View className=' bg-slate-500 rounded-full mb-3 mr-3'>
+          <View className=' bg-slate-500 rounded-full mb-3 mr-3 shadow-md'>
             <MaterialIcons name="add" size={48} color="white"/>
           </View>
         </TouchableOpacity>
       </View>
-      <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic}  />
+      <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
       <AddClient isOpen={addOpen} setIsOpen={setAddOpen}/> 
     </View>
   );

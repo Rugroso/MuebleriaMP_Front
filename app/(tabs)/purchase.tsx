@@ -17,17 +17,22 @@ export default function HomeScreen() {
   const [establecimiento, setEstablecimiento] = React.useState(1);
   const [comprasAvailable, setComprasAvailable] = React.useState(false);
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
+  const [orderBy, setOrderBy] = React.useState('Cantidad');
+  const [ascDesc, setascDesc] = React.useState('ASC');
 
   const fetchCompras = async () => {
     try {
       const response = await fetch(
-        `https://d40c-2806-2f0-1081-fc76-c1b5-1075-253d-c071.ngrok-free.app/comprasestablecimmiento?id=${establecimiento}`
+        `http://localhost:3000/comprasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=${orderBy}&ascDesc=${ascDesc}`
       );
       const data = await response.json();
       if(Array.isArray(data)) {
         const compras = data.map((event) => ({
-          ...event,
-          FechaCompra: new Date(event.FechaCompra)
+          Cantidad: event.Cantidad,
+          Nombre_Mueble: event.Nombre_Mueble,
+          Precio: event.Precio,
+          Nombre_Distribuidor: event.Distribuidor,
+          FechaCompra: new Date(event.FechaCompra),
         }));
         setCompras(compras);
         setComprasAvailable(true);
@@ -39,10 +44,16 @@ export default function HomeScreen() {
   };
 
   React.useEffect(() => {
-    fetchCompras(); // Fetch inicial
+    console.log(orderBy)
+    console.log(ascDesc)
+    fetchCompras();
     const intervalId = setInterval(fetchCompras, 1000);
     return () => clearInterval(intervalId);
-  }, [establecimiento]);
+  }, [establecimiento, orderBy, ascDesc]);
+
+  React.useEffect(() => {
+    fetchCompras()
+  }, [orderBy, ascDesc]);
   
   
 
@@ -89,6 +100,35 @@ export default function HomeScreen() {
         setSelectedSucursal('San Francisco')
       }
     }
+    if (topic === 'Seleccionar una forma de Ordenar') {
+      if (value === 'Fecha - Menor a Mayor') {
+        setOrderBy('Fecha');
+        setascDesc('ASC');
+      }
+      else if (value === 'Fecha - Mayor a Menor') {
+        setOrderBy('Fecha');
+        setascDesc('DESC');
+      }
+      else if (value === 'Precio - Menor a Mayor') {
+        setOrderBy('Precio');
+        setascDesc('ASC');
+      } else if (value === 'Precio - Mayor a Menor') {
+        setOrderBy('Precio');
+        setascDesc('DESC');
+      } else if (value === 'Cantidad - Menor a Mayor') {
+        setOrderBy('Cantidad');
+        setascDesc('ASC');
+      } else if (value === 'Cantidad - Mayor a Menor') {
+        setOrderBy('Cantidad');
+        setascDesc('DESC');
+      } else if (value === 'Nombre - A-Z') {
+        setOrderBy('Nombre');
+        setascDesc('ASC');
+      } else if (value === 'Nombre - Z-A') {
+        setOrderBy('Nombre');
+        setascDesc('DESC');
+      }
+    }
     setIsOpen(false);
   };
 
@@ -98,7 +138,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className='w-full h-full flex items-center justify-center bg-slate-700'>
+    <View className='w-full h-full flex items-center justify-center bg-slate-800'>
       <View className='h-[12%] w-full bg-stone-800 flex items-center justify-center'>
         <Text className='text-2xl font-semibold text-white mt-[11%]'>
           Compras
@@ -116,26 +156,38 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center'>
-            <View className='w-[9%]'>
-                <MaterialIcons name="chair" size={32} color="white" />
+        <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center shadow-lg'>
+          <View className='w-[32px]'>
+            <MaterialIcons name="chair" size={32} color="white" />
+          </View>
+          <View className='ml-4 w-[90%]'>
+            <Text className='text-xl font-bold text-white'>Último Mueble Comprado</Text>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
+              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.Nombre_Mueble}</Text>
             </View>
-          <View className='ml-4'>
-            <Text className='text-xl font-semibold text-white'>Último Mueble Comprado</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Producto: {compras.at(-1)?.Nombre_Mueble}</Text>
-            <Text className='text-lg text-gray-300'>Cantidad: {compras.at(-1)?.Cantidad}</Text>
-            <Text className='text-lg text-gray-300'>Precio: {compras.at(-1)?.Precio}</Text>
-            <Text className='text-lg text-gray-300'>Fecha: {compras.at(-1)?.FechaCompra?.toLocaleDateString()}</Text>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
+              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.Cantidad}</Text>
+            </View>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
+              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.Precio}</Text>
+            </View>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
+              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.FechaCompra?.toLocaleDateString()}</Text>
+            </View>
           </View>
         </View>
 
-        <View className='bg-stone-800 p-4 rounded-lg mb-10'>
+        <View className='bg-stone-800 p-4 rounded-lg mb-10 shadow-lg'>
           <View className='flex flex-row'>
             <Text className='text-xl font-semibold text-white mb-2'>
               Ordenar por
             </Text>
             <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar', 'ordenar')}>
-              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4'>
+              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4 shadow-md'>
                 <MaterialIcons name="sort" size={18} color="white" />
               </View>
             </TouchableOpacity>
@@ -145,16 +197,25 @@ export default function HomeScreen() {
             <View>
               {compras.map((data, index) => {
                 return (
-                  <View key={`${data.Nombre_Mueble}-${data.FechaCompra.getTime()}-${index}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center'>
+                  <View key={`${data.Nombre_Mueble}-${data.FechaCompra.getTime()}-${index}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
                   <View className='w-[9%]'>
                     <MaterialIcons name="chair" size={32} color="white" />
                   </View>
                   <View>            
                     <View className='ml-4 w-[95%]'>
-                      <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
-                      <Text className='text-gray-300'>Precio: {data.Precio}</Text>
-                      <Text className='text-gray-300'>Cantidad: {data.Cantidad}</Text>
-                      <Text className='text-gray-300'>Fecha: {new Date(data.FechaCompra).toLocaleDateString()}</Text>
+                    <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
+                      <View className='flex flex-row'>
+                        <Text className='text-gray-300 mr-1'>Precio:</Text>
+                        <Text className='text-white font-semibold'>{data.Precio}</Text>
+                      </View>
+                      <View className='flex flex-row'>
+                        <Text className='text-gray-300 mr-1'>Cantidad:</Text>
+                        <Text className='text-white font-semibold'>{data.Cantidad}</Text>
+                      </View>
+                      <View className='flex flex-row'>
+                        <Text className='text-gray-300 mr-1'>Fecha:</Text>
+                        <Text className='text-white font-semibold'>{new Date(data.FechaCompra).toLocaleDateString()}</Text>
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -171,12 +232,12 @@ export default function HomeScreen() {
       </ScrollView>
       <View className='absolute bottom-0 right-0'>
         <TouchableOpacity onPress={() => setAddOpen(true)}>
-          <View className=' bg-slate-500 rounded-full mb-3 mr-3'>
+          <View className=' bg-slate-500 rounded-full mb-3 mr-3 shadow-md'>
             <MaterialIcons name="add" size={48} color="white"/>
           </View>
         </TouchableOpacity>
       </View>
-      <MenuItems  onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
+      <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
       <AddBuy isOpen={addOpen} setIsOpen={setAddOpen}></AddBuy>
     </View>
   );

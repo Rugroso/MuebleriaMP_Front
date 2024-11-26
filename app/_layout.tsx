@@ -1,5 +1,4 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-
 import { TamaguiProvider } from 'tamagui'
 import { PortalProvider } from '@tamagui/portal'
 import { tamaguiConfig } from '../tamagui.config'
@@ -8,9 +7,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { Slot } from "expo-router";
 import "../global.css";
-
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -36,13 +33,30 @@ export default function RootLayout() {
     <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme!}>
       <PortalProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Slot/>
-            <Stack.Screen name="+not-found" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'slide_from_right', // Añade animación de transición
+              contentStyle: { backgroundColor: 'transparent' }, // Fondo transparente para transiciones suaves
+            }}
+          >
+            <Stack.Screen 
+              name="(tabs)" 
+              options={{ 
+                headerShown: false,
+                animation: 'none' // Deshabilita la animación para las tabs
+              }} 
+            />
+            <Stack.Screen 
+              name="+not-found" 
+              options={{ 
+                headerShown: false,
+                presentation: 'modal' // Presentación modal para not-found
+              }} 
+            />
           </Stack>
         </ThemeProvider>
-    </PortalProvider>
+      </PortalProvider>
     </TamaguiProvider>
   );
 }
