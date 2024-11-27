@@ -162,7 +162,7 @@ React.useEffect(() => {
           <View>
           {inventario.map((data) => {
             return (
-              <View key={`${data.Nombre_Mueble}-${data.FechaCompra}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-md'>
+              <View key={`${data.Nombre_Mueble}-${data.FechaCompra}`} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-md'>
                 <View className='w-[9%]'>
                   <MaterialIcons name="chair" size={32} color="white" />
                 </View>

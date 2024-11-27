@@ -48,7 +48,8 @@ export default function HomeScreen() {
             <Text className='text-lg text-gray-300'>Valor Estimado: $45,000.00</Text>
           </View>
         </View>
-
+        <View className="my-4 border-t border-gray-600" />
+    
         <Text className='text-2xl font-semibold text-white mb-5 text-start'>
           Reportes Disponibles
         </Text>

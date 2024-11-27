@@ -24,7 +24,6 @@ const AddClient: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
   const [direccion, setDireccion] = useState('');
 
   const handleSubmit = async () => {
-    // Validación básica
     if (!nombre || !telefono || !correo || !direccion) {
       Alert.alert("Error", "Todos los campos son obligatorios.");
       return;
@@ -71,7 +70,6 @@ const AddClient: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <ScrollView style={styles.scrollContainer}>
-            {/* Header */}
             <View style={styles.header}>
               <Text style={styles.title}>Registrar un Cliente</Text>
               <Pressable
@@ -83,12 +81,10 @@ const AddClient: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
               </Pressable>
             </View>
 
-            {/* Descripción */}
             <Text style={styles.description}>
               Llena el formulario para registrar un cliente
             </Text>
 
-            {/* Campos de entrada */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Nombre</Text>
               <TextInput

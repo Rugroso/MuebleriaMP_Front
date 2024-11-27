@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,45 +12,128 @@ import {
 import DropDownPicker from 'react-native-dropdown-picker';
 import { FontAwesome } from '@expo/vector-icons';
 
-interface MenuItemsProps {
+interface addSaleProps {
   setIsOpen: (value: boolean) => void;
   isOpen: boolean;
+  establecimientoID: number;
 }
 
-const AddSale: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
-  const [clientId, setClientId] = useState('');
+const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID }) => {
+  const [clientID, setClientID] = useState('');
   const [quantity, setQuantity] = useState('');
   const [open, setOpen] = useState(false);
+  const [openMetodo, setOpenMetodo] = useState(false);
+  const [selectedMetodoPago, setSelectedMetodoPago] = useState<string | null>(null);
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
+  const [installments, setInstallments] = useState('');
+  const [initialPayment, setInitialPayment] = useState('');
+
   const [furnitureOptions, setFurnitureOptions] = useState([
-    { label: 'Silla', value: 'chair' },
-    { label: 'Mesa', value: 'table' },
-    { label: 'Sofá', value: 'sofa' },
-    { label: 'Cama', value: 'bed' },
+    { label: 'Silla', value: 'Silla' },
   ]);
 
-  const handleSubmit = () => {
-    if (!clientId || !quantity || !selectedFurniture) {
+  const [metodoPagoOptions, setMetodoPagoOptions] = useState([
+    { label: 'Contado', value: 'Contado' },
+    { label: 'Credito', value: 'Credito' },
+  ]);
+
+  const getMuebles = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/Muebles');
+      if (response.ok) {
+        const muebles = await response.json();
+        if (Array.isArray(muebles)) {
+          const furnitureOptions = muebles.map((event) => ({
+            label: event.Nombre,
+            value: event.MuebleID, 
+          }));
+          setFurnitureOptions(furnitureOptions);
+          console.log('Furniture Options:', furnitureOptions);
+        }
+      }
+    } catch (e) {
+      console.error('Error al obtener los muebles:', e);
+    }
+  };
+  
+  
+  useEffect(()=> {
+    getMuebles();
+  },[])
+  useEffect(()=> {
+    console.log(selectedFurniture)
+  },[selectedFurniture])
+
+  const handleSubmit = async () => {
+    if (!clientID || !quantity || !selectedFurniture || !selectedMetodoPago) {
       Alert.alert('Error', 'Por favor, llena todos los campos.');
       return;
     }
+    
 
-    // Simulación de envío de datos
-    const saleData = {
-      clientId,
-      furniture: selectedFurniture,
-      quantity,
-    };
-
-    console.log('Datos de la venta:', saleData);
-    Alert.alert('Éxito', 'La venta fue registrada exitosamente.');
-    resetForm();
+  
+    if (selectedMetodoPago === 'Credito' && (!installments || !initialPayment)) {
+      Alert.alert(
+        'Error',
+        'Por favor, completa los campos de plazos y cantidad inicial para el crédito.'
+      );
+      return;
+    }
+  
+    if (selectedMetodoPago === 'Credito') {
+      const installmentsInt = parseInt(installments, 10);
+      if (isNaN(installmentsInt) || installmentsInt < 1 || installmentsInt > 36) {
+        Alert.alert(
+          'Error',
+          'El plazo debe ser un número entre 1 y 36 meses.'
+        );
+        return;
+      }
+    }
+  
+    try {
+      const formJson = {
+        clientID,
+        selectedFurniture,
+        quantity,
+        establecimientoID,
+        
+        metodoPago: selectedMetodoPago,
+        ...(selectedMetodoPago === 'Credito' && { 
+          Plazo: installments,
+          initialPayment 
+        }),
+      };
+  
+      const response = await fetch('http://localhost:3000/ventas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formJson),
+      });
+  
+      if (response.ok) {
+        Alert.alert('Éxito', 'La venta fue registrada exitosamente.');
+        resetForm();
+      } else {
+        const error = await response.json();
+        Alert.alert('Error', error.message || 'No se pudo registrar la venta.');
+      }
+    } catch (error) {
+      console.error('Error al enviar la venta:', error);
+      Alert.alert('Error', 'Hubo un problema al enviar el formulario.');
+    }
   };
+  
 
   const resetForm = () => {
-    setClientId('');
+    setClientID('');
     setQuantity('');
     setSelectedFurniture(null);
+    setSelectedMetodoPago(null);
+    setInstallments('');
+    setInitialPayment(''); // Resetea el estado del pago inicial
     setIsOpen(false);
   };
 
@@ -64,7 +147,6 @@ const AddSale: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <ScrollView>
-            {/* Header */}
             <View style={styles.header}>
               <Text style={styles.title}>Añadir una Venta</Text>
               <TouchableOpacity onPress={() => setIsOpen(false)}>
@@ -72,26 +154,23 @@ const AddSale: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Descripción */}
             <Text style={styles.description}>
               Llena el formulario para añadir una compra
             </Text>
 
-            {/* Campo: ID del cliente */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>ID Cliente</Text>
               <TextInput
                 style={styles.input}
-                value={clientId}
-                onChangeText={setClientId}
+                value={clientID}
+                onChangeText={setClientID}
                 placeholder="Ej: 10"
                 placeholderTextColor="#666"
                 keyboardType="numeric"
               />
             </View>
 
-            {/* Campo: Muebles disponibles */}
-            <View style={styles.inputGroup}>
+            <View style={{ zIndex: 2, marginBottom: 16 }}>
               <Text style={styles.label}>Muebles disponibles</Text>
               <DropDownPicker
                 open={open}
@@ -105,10 +184,11 @@ const AddSale: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
                 dropDownContainerStyle={styles.dropdownContainer}
                 textStyle={styles.dropdownText}
                 placeholderStyle={styles.dropdownPlaceholder}
+                listMode="SCROLLVIEW"
+                maxHeight={125}
               />
             </View>
 
-            {/* Campo: Cantidad */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Cantidad</Text>
               <TextInput
@@ -121,7 +201,53 @@ const AddSale: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
               />
             </View>
 
-            {/* Botón: Registrar venta */}
+            <View style={{ zIndex: 1, marginBottom: 16 }}>
+              <Text style={styles.label}>Método de Pago</Text>
+              <DropDownPicker
+                open={openMetodo}
+                value={selectedMetodoPago}
+                items={metodoPagoOptions}
+                setOpen={setOpenMetodo}
+                setValue={setSelectedMetodoPago}
+                setItems={setMetodoPagoOptions}
+                placeholder="Selecciona un método de pago"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                textStyle={styles.dropdownText}
+                placeholderStyle={styles.dropdownPlaceholder}
+                listMode="SCROLLVIEW"
+                maxHeight={125}
+              />
+            </View>
+
+            {selectedMetodoPago === 'Credito' && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Plazos</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={installments}
+                    onChangeText={setInstallments}
+                    placeholder="Ej: 12"
+                    placeholderTextColor="#666"
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Cantidad Inicial</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={initialPayment}
+                    onChangeText={setInitialPayment}
+                    placeholder="Ej: 5000"
+                    placeholderTextColor="#666"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </>
+            )}
+
             <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
               <Text style={styles.submitButtonText}>VENDER</Text>
             </TouchableOpacity>
@@ -133,7 +259,6 @@ const AddSale: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
 };
 
 export default AddSale;
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,

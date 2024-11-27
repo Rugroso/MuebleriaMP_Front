@@ -2,10 +2,8 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
 import MenuItems from '@/components/MenuItems';
 import AddClient from '@/components/AddClient';
-
-
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { setConfig } from 'tamagui';
+
 
 
 export default function HomeScreen() {
@@ -16,7 +14,9 @@ export default function HomeScreen() {
   const [topic, setTopic] = React.useState('');
   const [size, setSize] = React.useState(0);
   const [clients, setClients] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
+  const [lastclient, setLastClient] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
   const [clientAvailable, setClientsAvailable] = React.useState(false)
+  const [lastClientAvailable, setLastClientAvailable] = React.useState(false)
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
 
@@ -46,6 +46,33 @@ export default function HomeScreen() {
     } catch (error) {
       setClientsAvailable(false)
       setClients([]);
+    }
+    //Esto es para ultimo registro
+    try {
+      const response = await fetch(
+        `http://localhost:3000/clientes?orderBy=clienteID&ascDesc=ASC`
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const clientes = [
+          ...data.map((event) => ({
+            ClienteID: event.ClienteID,
+            Nombre: event.Nombre,
+            Telefono: event.Telefono,
+            Correo: event.Correo,
+            Direccion: event.Direccion,
+          })),
+        ];
+        setLastClient(clientes);
+        setLastClientAvailable(true)
+      } else {
+        console.error("Expected an array, received:", data);
+        setLastClientAvailable(false)
+        setLastClient([]);
+      }
+    } catch (error) {
+      setLastClientAvailable(false)
+      setLastClient([]);
     }
   };
 
@@ -104,8 +131,14 @@ export default function HomeScreen() {
             </View>
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Último Cliente Registrado</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Nombre: Sarah Williams</Text>
-            <Text className='text-lg text-gray-300'>ID: 10</Text>
+            <View className='flex flex-row'>
+                <Text className='text-gray-300 text-lg mr-1'>Nombre:</Text>
+                <Text className='text-white text-lg font-semibold'>{lastclient.at(-1)?.Nombre}</Text>
+            </View>
+            <View className='flex flex-row'>
+                <Text className='text-gray-300 text-lg mr-1'>ID:</Text>
+                <Text className='text-white text-lg font-semibold'>{lastclient.at(-1)?.ClienteID}</Text>
+            </View>          
           </View>
         </View>
 
@@ -139,17 +172,29 @@ export default function HomeScreen() {
           <View >
           {clients.map((data, key) => {
                     return (     
-                      <View key={key} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
+                      <View key={key} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
                         <View className='w-[9%]'>
                             <MaterialIcons name="person" size={32} color="white" />
                         </View>
                       <View>            
-                      <View className='ml-4 w-[95%]' key={key}>
+                      <View className='ml-4 w-[72%]' key={key}>
                         <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
-                        <Text className='text-gray-300'>ID: {data.ClienteID}</Text>
-                        <Text className='text-gray-300'>Teléfono: {data.Telefono}</Text>
-                        <Text className='text-gray-300'>Correo: {data.Correo}</Text>
-                        <Text className='text-gray-300'>Dirección: {data.Direccion}</Text>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>ID:</Text>
+                          <Text className='text-white font-semibold'>{data.ClienteID}</Text>
+                        </View>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Teléfono:</Text>
+                          <Text className='text-white font-semibold'>{data.Telefono}</Text>
+                        </View>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Correo:</Text>
+                          <Text className='text-white font-semibold'>{data.Correo}</Text>
+                        </View>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Dirreción:</Text>
+                          <Text className='text-white font-semibold'>{data.Direccion}</Text>
+                        </View>
                       </View>
                     </View>
                   </View>

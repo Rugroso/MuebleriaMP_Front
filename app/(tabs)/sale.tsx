@@ -220,7 +220,7 @@ export default function HomeScreen() {
               <View>
                 {ventas.map((data) => {
                   return (
-                    <View key={`${data.Nombre_Mueble}-${data.FechaVenta.getTime()}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
+                    <View key={`${data.Nombre_Mueble}-${data.FechaVenta.getTime()}`} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
                       <View className='w-[9%]'>
                         <MaterialIcons name="shopping-cart" size={32} color="white" />
                       </View>
@@ -236,8 +236,8 @@ export default function HomeScreen() {
                           <Text className='text-white font-semibold'>{data.Cantidad}</Text>
                         </View>
                         <View className='flex flex-row'>
-                          <Text className='text-gray-300 mr-1'>Precio:</Text>
-                          <Text className='text-white font-semibold'>${data.Precio}</Text>
+                          <Text className='text-gray-300 mr-1'>Total:</Text>
+                          <Text className='text-white font-semibold'>${data.Precio * data.Cantidad}</Text>
                         </View>
                         <View className='flex flex-row'>
                           <Text className='text-gray-300 mr-1'>Fecha:</Text>
@@ -265,7 +265,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
-      <AddSale isOpen={addOpen} setIsOpen={setAddOpen}></AddSale>
+      <AddSale isOpen={addOpen} setIsOpen={setAddOpen} establecimientoID={establecimiento}></AddSale>
     </View>
   );
 }

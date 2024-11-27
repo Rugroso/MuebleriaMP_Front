@@ -197,7 +197,7 @@ export default function HomeScreen() {
             <View>
               {compras.map((data, index) => {
                 return (
-                  <View key={`${data.Nombre_Mueble}-${data.FechaCompra.getTime()}-${index}`} className='bg-slate-600 p-3 rounded-lg mb-2 flex-row items-center shadow-lg'>
+                  <View key={`${data.Nombre_Mueble}-${data.FechaCompra.getTime()}-${index}`} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
                   <View className='w-[9%]'>
                     <MaterialIcons name="chair" size={32} color="white" />
                   </View>
