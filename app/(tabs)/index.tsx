@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Modal, Pressable, TextInput } from 'react-native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { generarReporteCompras, generarReporteVentas, generarReporteMuebles } from '../../utils/pdfGenerator';
+import { generarReporteCompras, generarReporteVentas, generarReporteMuebles, generarReporteCredito } from '../../utils/pdfGenerator';
 import { Alert } from 'react-native';
 
 const fetchData = async (endpoint: string) => {
@@ -109,7 +109,34 @@ export default function HomeScreen() {
           </View>
         </Pressable>
 
-        <Pressable onPress={() => null}>
+        <Pressable onPress={async () => {
+          try {
+            // Obtener datos de clientes en crédito
+            const response = await fetch('http://localhost:3000/clientecredito'); // Asegúrate de que este endpoint existe
+            const datosAPI = await response.json();
+
+            // Formateamos los datos
+            const datosReporte = {
+              fecha: new Date().toLocaleDateString(), // O la fecha que desees
+              clientes: datosAPI.map((cliente: { nombre: string; direccion: string; telefono: string; adeudo: number; mesesRestantes: number; }) => ({
+                nombre: cliente.nombre,
+                direccion: cliente.direccion,
+                telefono: cliente.telefono,
+                adeudo: cliente.adeudo,
+                mesesRestantes: cliente.mesesRestantes
+              }))
+            };
+
+            const success = await generarReporteCredito(datosReporte);
+
+            if (success) {
+              Alert.alert('Éxito', 'PDF generado correctamente');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Alert.alert('Error', 'No se pudo generar el reporte');
+          }
+        }}>
           <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center justify-between shadow-lg'>
             <View className='flex-row flex items-center'>
               <FontAwesome name="user" size={32} color="#9e0618" />
