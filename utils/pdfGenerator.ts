@@ -2,16 +2,13 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
 interface ReporteCompras {
-  fechaInicio: string;
-  fechaFin: string;
-  sucursal: string;
-  clientes: {
-    id: number;
-    nombre: string;
-    direccion: string;
-    telefono: string;
-    adeudo: number;
-    mesesRestantes: number;
+  fecha: string;
+  reportes: {
+    distribuidor: string;
+    mueble: string;
+    cantidad: string;
+    costoUnitario: string;
+    costoTotal: number;
   }[];
 }
 
@@ -70,7 +67,7 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
             <img class="logo" src="https://i.imgur.com/YOUR_LOGO.png" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Ventas</h2>
-            <h3>Clientes en Crédito a día de ${data.fechaInicio}</h3>
+            <h3>Clientes en Crédito a día de ${data.fecha}</h3>
           </div>
 
           <table>
@@ -85,14 +82,13 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
               </tr>
             </thead>
             <tbody>
-              ${data.clientes.map(cliente => `
+              ${data.reportes.map(cliente => `
                 <tr>
-                  <td>${cliente.id}</td>
-                  <td>${cliente.nombre}</td>
-                  <td>${cliente.direccion}</td>
-                  <td>${cliente.telefono}</td>
-                  <td>$${cliente.adeudo}</td>
-                  <td>${cliente.mesesRestantes}</td>
+                  <td>${cliente.distribuidor}</td>
+                  <td>${cliente.mueble}</td>
+                  <td>${cliente.cantidad}</td>
+                  <td>${cliente.costoUnitario}</td>
+                  <td>$${cliente.costoTotal}</td>
                 </tr>
               `).join('')}
             </tbody>

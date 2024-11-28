@@ -4,27 +4,21 @@ import { useState } from 'react';
 import { generarReporteCompras } from '../../utils/pdfGenerator';
 import { Alert } from 'react-native';
 
-const obtenerDatosCreditos = async () => {
+const fetchData = async (endpoint: string) => {
   try {
-    const response = await fetch('http://localhost:3000/');
-    if (!response.ok) {
-      throw new Error('Error al obtener datos');
-    }
-    const datos = await response.json();
-    return datos;
+    const response = await fetch(`http://localhost:3000/${endpoint}`);
+    if (!response.ok) throw new Error(`Error al obtener datos de ${endpoint}`);
+    return await response.json();
   } catch (error) {
-    console.error('Error:', error);
+    console.error(`Error en ${endpoint}:`, error);
     throw error;
   }
 };
 
-
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
-    fechaInicio: '',
-    fechaFin: '',
-    sucursal: ''
+    fecha: ''
   });
 
   return (
@@ -130,27 +124,10 @@ export default function HomeScreen() {
               
               <TextInput
                 className='border border-stone-700 p-2 rounded-lg mb-4'
-                placeholder="Fecha Inicio (DD/MM/YYYY)"
+                placeholder="Fecha (DD/MM/YYYY)"
                 placeholderTextColor={'gray'}
-                value={formData.fechaInicio}
-                onChangeText={(text) => setFormData({...formData, fechaInicio: text})}
-              />
-              
-              <TextInput
-                className='border border-stone-700  p-2 rounded-lg mb-4'
-                placeholder="Fecha Fin (DD/MM/YYYY)"
-                placeholderTextColor={'gray'}
-                value={formData.fechaFin}
-                onChangeText={(text) => setFormData({...formData, fechaFin: text})}
-              />
-              
-              <TextInput
-                className='border border-stone-700  p-2 rounded-lg mb-4'
-                placeholder="Sucursal"
-                placeholderTextColor={'gray'}
-
-                value={formData.sucursal}
-                onChangeText={(text) => setFormData({...formData, sucursal: text})}
+                value={formData.fecha}
+                onChangeText={(text) => setFormData({...formData, fecha: text})}
               />
 
               <View className='flex-row justify-center space-x-4 w-full'>
@@ -165,29 +142,32 @@ export default function HomeScreen() {
                   className='bg-blue-500 px-4 py-2 rounded-lg'
                   onPress={async () => {
                     try {
-                      // Primero obtenemos los datos
-                      const datosAPI = await obtenerDatosCreditos();
+                      // Extraer mes y año de la fecha
+                      const [dia, mes, anio] = formData.fecha.split('/');
                       
-                      // Formateamos los datos según necesitemos
+                      // Construir el query string
+                      const queryString = `comprasmensuales?mes=${mes}&anio=${anio}`;
+                      
+                      // Obtener datos con el nuevo query string
+                      const datosAPI = await fetchData(queryString);
+                      
+                      // Formateamos los datos
                       const datosReporte = {
-                        fechaInicio: new Date().toLocaleDateString(),
-                        fechaFin: new Date().toLocaleDateString(),
-                        sucursal: "Central",
-                        clientes: datosAPI.map((cliente: { id: any; nombre: any; direccion: any; telefono: any; adeudo: any; mesesRestantes: any; }) => ({
-                          id: cliente.id,
-                          nombre: cliente.nombre,
-                          direccion: cliente.direccion,
-                          telefono: cliente.telefono,
-                          adeudo: cliente.adeudo,
-                          mesesRestantes: cliente.mesesRestantes
+                        fecha: formData.fecha,
+                        reportes: datosAPI.map((reporte: { distribuidor: any; mueble: any; cantidad: any; costoUnitario: any; costoTotal: any; }) => ({
+                          distribuidor: reporte.distribuidor,
+                          mueble: reporte.mueble,
+                          cantidad: reporte.cantidad,
+                          costoUnitario: reporte.costoUnitario,
+                          costoTotal: reporte.costoTotal
                         }))
                       };
 
-                      // Generamos el PDF con los datos
                       const success = await generarReporteCompras(datosReporte);
                       
                       if (success) {
                         Alert.alert('Éxito', 'PDF generado correctamente');
+                        setModalVisible(false);
                       }
                     } catch (error) {
                       console.error('Error:', error);
