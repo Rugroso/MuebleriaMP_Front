@@ -4,6 +4,20 @@ import { useState } from 'react';
 import { generarReporteCompras } from '../../utils/pdfGenerator';
 import { Alert } from 'react-native';
 
+const obtenerDatosCreditos = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/');
+    if (!response.ok) {
+      throw new Error('Error al obtener datos');
+    }
+    const datos = await response.json();
+    return datos;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};
+
 
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -150,23 +164,34 @@ export default function HomeScreen() {
                 <Pressable
                   className='bg-blue-500 px-4 py-2 rounded-lg'
                   onPress={async () => {
-                    // Validación básica
-                    if (!formData.fechaInicio || !formData.fechaFin || !formData.sucursal) {
-                      Alert.alert('Error', 'Por favor complete todos los campos');
-                      return;
-                    }
-
                     try {
-                      const success = await generarReporteCompras(formData);
+                      // Primero obtenemos los datos
+                      const datosAPI = await obtenerDatosCreditos();
+                      
+                      // Formateamos los datos según necesitemos
+                      const datosReporte = {
+                        fechaInicio: new Date().toLocaleDateString(),
+                        fechaFin: new Date().toLocaleDateString(),
+                        sucursal: "Central",
+                        clientes: datosAPI.map((cliente: { id: any; nombre: any; direccion: any; telefono: any; adeudo: any; mesesRestantes: any; }) => ({
+                          id: cliente.id,
+                          nombre: cliente.nombre,
+                          direccion: cliente.direccion,
+                          telefono: cliente.telefono,
+                          adeudo: cliente.adeudo,
+                          mesesRestantes: cliente.mesesRestantes
+                        }))
+                      };
+
+                      // Generamos el PDF con los datos
+                      const success = await generarReporteCompras(datosReporte);
+                      
                       if (success) {
-                        Alert.alert('Éxito', 'El reporte se ha generado correctamente');
-                      } else {
-                        Alert.alert('Error', 'No se pudo generar el reporte');
+                        Alert.alert('Éxito', 'PDF generado correctamente');
                       }
                     } catch (error) {
-                      Alert.alert('Error', 'Ocurrió un error al generar el reporte');
-                    } finally {
-                      setModalVisible(false);
+                      console.error('Error:', error);
+                      Alert.alert('Error', 'No se pudo generar el reporte');
                     }
                   }}
                 >
