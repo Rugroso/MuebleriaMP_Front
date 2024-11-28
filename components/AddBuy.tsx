@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,41 +15,102 @@ import { FontAwesome } from '@expo/vector-icons';
 interface MenuItemsProps {
   setIsOpen: (value: boolean) => void;
   isOpen: boolean;
+  establecimientoID: number;
 }
 
-const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
+const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID }) => {
   const [open, setOpen] = useState(false);
   const [openDistribuidor, setOpenDistribuidor] = useState(false);
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [selectedDistribuidor, setSelectedDistribuidor] = useState<string | null>(null);
   const [quantity, setQuantity] = useState('');
   const [furnitureOptions, setFurnitureOptions] = useState([
-    { label: 'Silla', value: 'chair' },
-    { label: 'Mesa', value: 'table' },
-    { label: 'Sofá', value: 'sofa' },
-    { label: 'Cama', value: 'bed' },
+    { label: 'Silla', value: 'Silla' },
   ]);
   const [distribuidorOptions, setDistribuidorOptions] = useState([
-    { label: 'Distribuidor A', value: 'distributor_a' },
-    { label: 'Distribuidor B', value: 'distributor_b' },
-    { label: 'Distribuidor C', value: 'distributor_c' },
+    { label: 'Intuitive', value: 'Intuitive' },
   ]);
 
-  const handleSubmit = () => {
+  // Obtener muebles
+  const getMuebles = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/muebles');
+      if (response.ok) {
+        const muebles = await response.json();
+        if (Array.isArray(muebles)) {
+          const options = muebles.map((mueble) => ({
+            label: mueble.Nombre,
+            value: mueble.MuebleID,
+          }));
+          setFurnitureOptions(options);
+        }
+      } else {
+        console.error('Error al obtener los muebles');
+      }
+    } catch (error) {
+      console.error('Error al obtener los muebles:', error);
+    }
+  };
+
+  // Obtener distribuidores
+  const getDistribuidores = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/distribuidores');
+      if (response.ok) {
+        const distribuidores = await response.json();
+        if (Array.isArray(distribuidores)) {
+          const options = distribuidores.map((distribuidor) => ({
+            label: distribuidor.Nombre,
+            value: distribuidor.DistribuidorID,
+          }));
+          setDistribuidorOptions(options);
+        }
+      } else {
+        console.error('Error al obtener los distribuidores');
+      }
+    } catch (error) {
+      console.error('Error al obtener los distribuidores:', error);
+    }
+  };
+
+  useEffect(() => {
+    getMuebles();
+    getDistribuidores();
+  }, []);
+
+  const handleSubmit = async () => {
     if (!selectedFurniture || !selectedDistribuidor || !quantity) {
       Alert.alert('Error', 'Por favor, llena todos los campos.');
       return;
     }
 
     const buyData = {
-      furniture: selectedFurniture,
-      distributor: selectedDistribuidor,
-      quantity,
+      muebleID: selectedFurniture,
+      distribuidorID: selectedDistribuidor,
+      quantity: parseInt(quantity, 10),
+      establecimientoID
     };
 
-    console.log('Datos de la compra:', buyData);
-    Alert.alert('Éxito', 'La compra fue registrada exitosamente.');
-    resetForm();
+    try {
+      const response = await fetch('http://localhost:3000/compras', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(buyData),
+      });
+
+      if (response.ok) {
+        Alert.alert('Éxito', 'La compra fue registrada exitosamente.');
+        resetForm();
+      } else {
+        const error = await response.json();
+        Alert.alert('Error', error.message || 'No se pudo registrar la compra.');
+      }
+    } catch (error) {
+      console.error('Error al registrar la compra:', error);
+      Alert.alert('Error', 'Hubo un problema al enviar el formulario.');
+    }
   };
 
   const resetForm = () => {
@@ -77,31 +138,11 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Descripción */}
             <Text style={styles.description}>
               Llena el formulario para añadir una compra
             </Text>
 
-            {/* Campo: Muebles disponibles */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Muebles disponibles</Text>
-              <DropDownPicker
-                open={open}
-                value={selectedFurniture}
-                items={furnitureOptions}
-                setOpen={setOpen}
-                setValue={setSelectedFurniture}
-                setItems={setFurnitureOptions}
-                placeholder="Selecciona un mueble"
-                style={styles.dropdown}
-                dropDownContainerStyle={styles.dropdownContainer}
-                textStyle={styles.dropdownText}
-                placeholderStyle={styles.dropdownPlaceholder}
-              />
-            </View>
-
-            {/* Campo: Distribuidores disponibles */}
-            <View style={styles.inputGroup}>
+            <View style={{ zIndex: 2, marginBottom: 16 }}>
               <Text style={styles.label}>Distribuidores Disponibles</Text>
               <DropDownPicker
                 open={openDistribuidor}
@@ -115,10 +156,30 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
                 dropDownContainerStyle={styles.dropdownContainer}
                 textStyle={styles.dropdownText}
                 placeholderStyle={styles.dropdownPlaceholder}
+                listMode="SCROLLVIEW"
+                maxHeight={125}
               />
             </View>
 
-            {/* Campo: Cantidad */}
+            <View style={{ zIndex: 1, marginBottom: 16 }}>
+              <Text style={styles.label}>Muebles disponibles</Text>
+              <DropDownPicker
+                open={open}
+                value={selectedFurniture}
+                items={furnitureOptions}
+                setOpen={setOpen}
+                setValue={setSelectedFurniture}
+                setItems={setFurnitureOptions}
+                placeholder="Selecciona un mueble"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                textStyle={styles.dropdownText}
+                placeholderStyle={styles.dropdownPlaceholder}
+                listMode="SCROLLVIEW"
+                maxHeight={125}
+              />
+            </View>
+
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Cantidad</Text>
               <TextInput
@@ -131,7 +192,6 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen }) => {
               />
             </View>
 
-            {/* Botón: Confirmar compra */}
             <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
               <Text style={styles.submitButtonText}>COMPRAR</Text>
             </TouchableOpacity>

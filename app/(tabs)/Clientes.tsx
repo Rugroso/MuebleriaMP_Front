@@ -2,7 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
 import MenuItems from '@/components/MenuItems';
 import AddClient from '@/components/AddClient';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 
 
@@ -15,8 +15,12 @@ export default function HomeScreen() {
   const [size, setSize] = React.useState(0);
   const [clients, setClients] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
   const [lastclient, setLastClient] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
-  const [clientAvailable, setClientsAvailable] = React.useState(false)
   const [lastClientAvailable, setLastClientAvailable] = React.useState(false)
+  const [clientAvailable, setClientsAvailable] = React.useState(false)
+  const [clientMX, setClientMX] = React.useState<{ ClienteID: number}[]>([]);
+  const [clientMXAvailable, setClientMXAvailable] = React.useState(false)
+  const [clientUSA, setClientUSA] = React.useState<{ ClienteID: number}[]>([]);
+  const [clientUSAAvailable, setClientUSAAvailable] = React.useState(false)
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
 
@@ -47,7 +51,7 @@ export default function HomeScreen() {
       setClientsAvailable(false)
       setClients([]);
     }
-    //Esto es para ultimo registro
+    //Esto es para el último registro
     try {
       const response = await fetch(
         `http://localhost:3000/clientes?orderBy=clienteID&ascDesc=ASC`
@@ -74,6 +78,55 @@ export default function HomeScreen() {
       setLastClientAvailable(false)
       setLastClient([]);
     }
+
+    //Obtener Clientes en México
+    try {
+      const response = await fetch(
+        `http://localhost:3000/clientesMX`
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const clientes = [
+          ...data.map((event) => ({
+            ...event
+          })),
+        ];
+        setClientMX(clientes);
+        setClientMXAvailable(true)
+      } else {
+        console.error("Expected an array, received:", data);
+        setClientMXAvailable(false)
+        setClientMX([]);
+      }
+    } catch (error) {
+      setClientMXAvailable(false)
+      setClientMX([]);
+    }
+
+     //Obtener Clientes en Estados Unidos
+     try {
+      const response = await fetch(
+        `http://localhost:3000/clientesUSA`
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const clientes = [
+          ...data.map((event) => ({
+            ...event
+          })),
+        ];
+        setClientUSA(clientes);
+        setClientUSAAvailable(true)
+      } else {
+        console.error("Expected an array, received:", data);
+        setClientUSAAvailable(false)
+        setClientUSA([]);
+      }
+    } catch (error) {
+      setClientUSAAvailable(false)
+      setClientUSA([]);
+    }
+
   };
 
   React.useEffect(() => {
@@ -107,8 +160,6 @@ export default function HomeScreen() {
         setascDesc('DESC');
       }
       }
-
-      
   };
 
   const handleTouchable = (topic:string, itemsType:string) => {
@@ -145,13 +196,17 @@ export default function HomeScreen() {
         <View className='rounded-lg mb-4 flex-row items-center justify-start w-screen'>
         <View className='mr-4 p-4 bg-stone-800 rounded-lg w-[44%] shadow-lg'>
             <Text className='text-xl font-semibold text-white'>MX</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Núm. de Clientes: 6</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Compras Totales: 54</Text>
+            <View className='flex flex-row mt-2'>
+                <Text className='text-gray-300 text-lg mr-1'>Núm. de Clientes:</Text>
+                <Text className='text-white text-lg font-semibold'>{clientMX.length}</Text>
+            </View>
           </View>
           <View className='p-4 bg-stone-800 rounded-lg w-[44%] shadow-lg'>
             <Text className='text-xl font-semibold text-white'>USA</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Núm. de Clientes: 6</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Compras Totales: 54</Text>
+            <View className='flex flex-row mt-2'>
+                <Text className='text-gray-300 text-lg mr-1'>Núm. de Clientes:</Text>
+                <Text className='text-white text-lg font-semibold'>{clientUSA.length}</Text>
+            </View>
           </View>
         </View>
 

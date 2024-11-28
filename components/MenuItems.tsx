@@ -38,21 +38,30 @@ const MenuItems: React.FC<MenuItemsProps> = ({ onSelectionChange, isOpen, setIsO
   ];
 
   const Ordenar = [
+    { name: "Nombre - A-Z" },
+    { name: "Nombre - Z-A" },
     { name: "Fecha - Menor a Mayor" },
     { name: "Fecha - Mayor a Menor" },
     { name: "Precio - Menor a Mayor" },
     { name: "Precio - Mayor a Menor" },
     { name: "Cantidad - Menor a Mayor" },
     { name: "Cantidad - Mayor a Menor" },
+  ];
+
+  const OrdenarInventario = [
     { name: "Nombre - A-Z" },
-    { name: "Nombre - Z-A" }
+    { name: "Nombre - Z-A" },
+    { name: "Precio - Menor a Mayor" },
+    { name: "Precio - Mayor a Menor" },
+    { name: "Cantidad - Menor a Mayor" },
+    { name: "Cantidad - Mayor a Menor" }
   ];
 
   const OrdenarClientes = [
-    { name: "ID - Menor a Mayor" },
-    { name: "ID - Mayor a Menor" },
     { name: "Nombre - A-Z" },
-    { name: "Nombre - Z-A" }
+    { name: "Nombre - Z-A" },
+    { name: "ID - Menor a Mayor" },
+    { name: "ID - Mayor a Menor" }
   ];
 
 
@@ -71,6 +80,9 @@ const MenuItems: React.FC<MenuItemsProps> = ({ onSelectionChange, isOpen, setIsO
     }
     else if (topic === 'Seleccionar una forma de Ordenar | Clientes') {
       setItems(OrdenarClientes);
+    }
+    else if (topic === 'Seleccionar una forma de Ordenar | Inventario') {
+      setItems(OrdenarInventario);
     }
   }, [topic]);
 

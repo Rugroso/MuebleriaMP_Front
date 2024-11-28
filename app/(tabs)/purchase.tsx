@@ -238,7 +238,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
-      <AddBuy isOpen={addOpen} setIsOpen={setAddOpen}></AddBuy>
+      <AddBuy isOpen={addOpen} setIsOpen={setAddOpen} establecimientoID={establecimiento}></AddBuy>
     </View>
   );
 }

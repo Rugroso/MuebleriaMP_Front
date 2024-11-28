@@ -218,9 +218,9 @@ export default function HomeScreen() {
           <ScrollView className={`${ventasAvailable ? 'h-[30rem]' : 'h-12'} bg-stone-900 p-4 rounded-2xl`}>
             {ventasAvailable ? (
               <View>
-                {ventas.map((data) => {
+                {ventas.map((data, key) => {
                   return (
-                    <View key={`${data.Nombre_Mueble}-${data.FechaVenta.getTime()}`} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
+                    <View key={key} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
                       <View className='w-[9%]'>
                         <MaterialIcons name="shopping-cart" size={32} color="white" />
                       </View>

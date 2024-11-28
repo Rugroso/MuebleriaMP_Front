@@ -1,16 +1,14 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
 import MenuItems from '@/components/MenuItems';
-import AddBuy from '@/components/AddBuy';
 
-
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [inventario, setInventario] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Date } []>([]);
+  const [inventario, setInventario] = React.useState<{ Cantidad: number, Nombre: string, Precio: number } []>([]);
   const [establecimiento, setEstablecimiento] = React.useState(9);
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
@@ -21,17 +19,15 @@ export default function HomeScreen() {
   const fetchInventario = async () => {
     try{
       const response = await fetch(
-        `http://localhost:3000/comprasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=${orderBy}&ascDesc=${ascDesc}`
+        `http://localhost:3000/inventarioestablecimiento?EstablecimientoID=${establecimiento}&orderBy=${orderBy}&ascDesc=${ascDesc}`
       );
       const data = await response.json();
       if (Array.isArray(data)) {
         const inventario = [
           ...data.map((event) => ({
             Cantidad: event.Cantidad,
-            Nombre_Mueble: event.Nombre_Mueble,
+            Nombre: event.Nombre,
             Precio: event.Precio,
-            Nombre_Distribuidor: event.Nombre_Distribuidor,
-            FechaCompra: event.FechaCompra
           })),
         ];
         setInventario(inventario);
@@ -52,8 +48,11 @@ React.useEffect(() => {
   fetchInventario();
   const intervalId = setInterval(fetchInventario, 1000);
   return () => clearInterval(intervalId);
-}, [establecimiento]);
+}, [establecimiento, orderBy, ascDesc]);
 
+React.useEffect(() => {
+  fetchInventario()
+}, [orderBy, ascDesc]);
 
   const handleSelectionChange = (value:any, topic:string) => {
     if (topic==='Seleccionar una Sucursal') {
@@ -98,6 +97,33 @@ React.useEffect(() => {
         setSelectedSucursal('San Francisco')
       }
     }
+      if (topic==='Seleccionar una forma de Ordenar | Inventario') {
+        if(value==='Nombre - A-Z') {
+          setOrderBy('Nombre');
+          setascDesc('ASC');
+        }
+        else if(value==='Nombre - Z-A') {
+          setOrderBy('Nombre');
+          setascDesc('DESC');
+        }
+        else if(value==='Precio - Menor a Mayor') {
+          setOrderBy('Precio');
+          setascDesc('ASC');
+        }
+        else if(value==='Precio - Mayor a Menor') {
+          setOrderBy('Precio');
+          setascDesc('DESC');
+        }
+        else if(value==='Cantidad - Menor a Mayor') {
+          setOrderBy('Cantidad');
+          setascDesc('ASC');
+        }
+        else if(value==='Cantidad - Mayor a Menor') {
+          setOrderBy('Cantidad');
+          setascDesc('DESC');
+        }
+      }
+
     setIsOpen(false);
   };
 
@@ -133,7 +159,7 @@ React.useEffect(() => {
             <Text className='text-xl font-bold text-white'>Último Mueble Añadido a Inventario</Text>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
-              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Nombre_Mueble}</Text>
+              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Nombre}</Text>
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
@@ -151,7 +177,7 @@ React.useEffect(() => {
             <Text className='text-xl font-semibold text-white mb-2'>
               Ordenar por
             </Text>
-            <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar', 'ordenar')}>
+            <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar | Inventario', 'ordenar')}>
               <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4 shadow-md'>
                 <MaterialIcons name="sort" size={18} color="white" />
               </View>
@@ -160,15 +186,15 @@ React.useEffect(() => {
           <ScrollView className={`${inventarioAvailable ? 'h-[30rem]' : 'h-12'} bg-stone-900 p-4 rounded-2xl`}>
           {inventarioAvailable ?
           <View>
-          {inventario.map((data) => {
+          {inventario.map((data, key) => {
             return (
-              <View key={`${data.Nombre_Mueble}-${data.FechaCompra}`} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-md'>
+              <View key={key} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-md'>
                 <View className='w-[9%]'>
                   <MaterialIcons name="chair" size={32} color="white" />
                 </View>
                 <View>            
                   <View className='ml-4 w-[95%]'>
-                    <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
+                    <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
                     <View className='flex flex-row'>
                       <Text className='text-gray-300 mr-1'>Precio:</Text>
                       <Text className='text-white font-semibold'>{data.Precio}</Text>
@@ -192,7 +218,6 @@ React.useEffect(() => {
         </View>
       </ScrollView>
       <MenuItems  onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
-      <AddBuy isOpen={addOpen} setIsOpen={setAddOpen}></AddBuy>
     </View>
   );
 }
