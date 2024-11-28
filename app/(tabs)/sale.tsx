@@ -13,8 +13,10 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Date}[]>([]);
+  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Date, Venta_Total:number;}[]>([]);
+  const [ultimaVenta, setUltimaVenta] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Date, Venta_Total:number;}[]>([]);
   const [ventasAvailable, setVentasAvailable] = React.useState(false);
+  const [ultimaVentaAvailable, setUltimaVentaAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(1);
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
   const [orderBy, setOrderBy] = React.useState('clienteID');
@@ -30,7 +32,8 @@ export default function HomeScreen() {
       if (Array.isArray(data)) {
         const ventas = data.map((event) => ({
           ...event,
-          FechaVenta: new Date(event.FechaVenta)
+          FechaVenta: new Date(event.FechaVenta),
+          Venta_Total: event.Venta_Total
         }));
         setVentas(ventas);
         setVentasAvailable(true);
@@ -44,6 +47,37 @@ export default function HomeScreen() {
       setVentas([]);
     }
   };
+
+  const fetchUltimaVenta = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/ventasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=FechaVenta&ascDesc=ASC`
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const ventas = data.map((event) => ({
+          ...event,
+          FechaVenta: new Date(event.FechaVenta),
+          Venta_Total: event.Venta_Total
+        }));
+        setUltimaVenta(ventas);
+        setUltimaVentaAvailable(true);
+      } else {
+        console.error("Expected an array, received:", data);
+        setUltimaVentaAvailable(false);
+        setUltimaVenta([]);
+      }
+    } catch (error) {
+      setUltimaVentaAvailable(false);
+      setUltimaVenta([]);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchUltimaVenta();
+    const intervalId = setInterval(fetchUltimaVenta, 1000); 
+    return () => clearInterval(intervalId);
+  }, [establecimiento]);
 
   React.useEffect(() => {
     fetchVentas();
@@ -162,23 +196,23 @@ export default function HomeScreen() {
             </View>
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Último Mueble Vendido</Text>
-            {ventasAvailable && ventas.length > 0 ? (
+            {ventasAvailable && ultimaVenta.length > 0 ? (
               <>
                 <View className='flex flex-row'>
                   <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
-                  <Text className='text-white font-semibold text-lg'>{ventas.at(-1)?.Nombre_Mueble}</Text>
+                  <Text className='text-white font-semibold text-lg'>{ultimaVenta.at(-1)?.Nombre_Mueble}</Text>
                 </View>
                 <View className='flex flex-row'>
                   <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
-                  <Text className='text-white font-semibold text-lg'>{ventas.at(-1)?.Cantidad}</Text>
+                  <Text className='text-white font-semibold text-lg'>{ultimaVenta.at(-1)?.Cantidad}</Text>
                 </View>
                 <View className='flex flex-row'>
                   <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
-                  <Text className='text-white font-semibold text-lg'>${ventas.at(-1)?.Precio}</Text>
+                  <Text className='text-white font-semibold text-lg'>${ultimaVenta.at(-1)?.Venta_Total}</Text>
                 </View>
                 <View className='flex flex-row'>
                   <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
-                  <Text className='text-white font-semibold text-lg'>{ventas.at(-1)?.FechaVenta.toLocaleDateString()}</Text>
+                  <Text className='text-white font-semibold text-lg'>{ultimaVenta.at(-1)?.FechaVenta.toLocaleDateString()}</Text>
                 </View>
               </>
             ) : (
@@ -237,7 +271,7 @@ export default function HomeScreen() {
                         </View>
                         <View className='flex flex-row'>
                           <Text className='text-gray-300 mr-1'>Total:</Text>
-                          <Text className='text-white font-semibold'>${data.Precio * data.Cantidad}</Text>
+                          <Text className='text-white font-semibold'>${data.Venta_Total}</Text>
                         </View>
                         <View className='flex flex-row'>
                           <Text className='text-gray-300 mr-1'>Fecha:</Text>

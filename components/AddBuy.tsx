@@ -22,6 +22,7 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
   const [open, setOpen] = useState(false);
   const [openDistribuidor, setOpenDistribuidor] = useState(false);
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
+  const [pais, setPais] = useState('')
   const [selectedDistribuidor, setSelectedDistribuidor] = useState<string | null>(null);
   const [quantity, setQuantity] = useState('');
   const [furnitureOptions, setFurnitureOptions] = useState([
@@ -30,8 +31,14 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
   const [distribuidorOptions, setDistribuidorOptions] = useState([
     { label: 'Intuitive', value: 'Intuitive' },
   ]);
+  
+  const [sucursalesMX, setSucursalesMX] = useState([
+    { label: 'Intuitive', value: 'Intuitive' },
+  ]);
+  const [sucursalesUSA, setSucursalesUSA] = useState([
+    { label: 'Intuitive', value: 'Intuitive' },
+  ]);
 
-  // Obtener muebles
   const getMuebles = async () => {
     try {
       const response = await fetch('http://localhost:3000/muebles');
@@ -52,31 +59,82 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
     }
   };
 
-  // Obtener distribuidores
-  const getDistribuidores = async () => {
+  // Obtener sucursales en México
+  const getSucursalesMX = async () => {
     try {
-      const response = await fetch('http://localhost:3000/distribuidores');
+      const response = await fetch('http://localhost:3000/sucursales/mx');
       if (response.ok) {
-        const distribuidores = await response.json();
-        if (Array.isArray(distribuidores)) {
-          const options = distribuidores.map((distribuidor) => ({
-            label: distribuidor.Nombre,
-            value: distribuidor.DistribuidorID,
+        const sucursales = await response.json();
+        if (Array.isArray(sucursales)) {
+          const options = sucursales.map((sucursal) => ({
+            label: sucursal.Nombre,
+            value: sucursal.SucursalID, 
           }));
-          setDistribuidorOptions(options);
+          setSucursalesMX(options);
         }
       } else {
-        console.error('Error al obtener los distribuidores');
+        console.error('Error al obtener las sucursales en MX');
       }
     } catch (error) {
-      console.error('Error al obtener los distribuidores:', error);
+      console.error('Error al obtener las sucursales en MX:', error);
+    }
+  };
+
+  const getPaisBySucursalId = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/sucursales/pais?id=${establecimientoID}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPais(data.Pais);
+      }
+    } catch (e) {
+      console.error('Error al obtener el país de la sucursal:', e);
+    }
+  };
+
+  // Obtener sucursales en Estados Unidos
+  const getSucursalesUSA = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/sucursales/usa');
+      if (response.ok) {
+        const sucursales = await response.json();
+        if (Array.isArray(sucursales)) {
+          const options = sucursales.map((sucursal) => ({
+            label: sucursal.Nombre,
+            value: sucursal.SucursalID,
+          }));
+          setSucursalesUSA(options);
+        }
+      } else {
+        console.error('Error al obtener las sucursales en USA');
+      }
+    } catch (error) {
+      console.error('Error al obtener las sucursales en USA:', error);
     }
   };
 
   useEffect(() => {
-    getMuebles();
-    getDistribuidores();
+    getSucursalesMX();
+    getSucursalesUSA();
   }, []);
+
+  useEffect(() => {
+    getPaisBySucursalId();
+  }, [establecimientoID]);
+
+  useEffect(() => {
+    getMuebles();
+  }, []);
+
+  useEffect(()=> {
+    console.log(pais)
+    if (pais==='MX') {
+      setDistribuidorOptions(sucursalesMX)
+    }
+    if (pais==='USA') {
+      setDistribuidorOptions(sucursalesUSA)
+    }
+  },[pais])
 
   const handleSubmit = async () => {
     if (!selectedFurniture || !selectedDistribuidor || !quantity) {
@@ -112,6 +170,7 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
       Alert.alert('Error', 'Hubo un problema al enviar el formulario.');
     }
   };
+  
 
   const resetForm = () => {
     setSelectedFurniture(null);

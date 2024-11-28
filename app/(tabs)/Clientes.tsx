@@ -184,11 +184,11 @@ export default function HomeScreen() {
             <Text className='text-xl font-semibold text-white'>Último Cliente Registrado</Text>
             <View className='flex flex-row'>
                 <Text className='text-gray-300 text-lg mr-1'>Nombre:</Text>
-                <Text className='text-white text-lg font-semibold'>{lastclient.at(-1)?.Nombre}</Text>
+                <Text className='text-white text-lg font-semibold'>{lastclient.at(-1)?.Nombre ? lastclient.at(-1)?.Nombre : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
                 <Text className='text-gray-300 text-lg mr-1'>ID:</Text>
-                <Text className='text-white text-lg font-semibold'>{lastclient.at(-1)?.ClienteID}</Text>
+                <Text className='text-white text-lg font-semibold'>{lastclient.at(-1)?.ClienteID ? lastclient.at(-1)?.ClienteID : 'Cargando...'}</Text>
             </View>          
           </View>
         </View>
@@ -198,14 +198,14 @@ export default function HomeScreen() {
             <Text className='text-xl font-semibold text-white'>MX</Text>
             <View className='flex flex-row mt-2'>
                 <Text className='text-gray-300 text-lg mr-1'>Núm. de Clientes:</Text>
-                <Text className='text-white text-lg font-semibold'>{clientMX.length}</Text>
+                <Text className='text-white text-lg font-semibold'>{clientMX.length ? clientMX.length : '...'}</Text>
             </View>
           </View>
           <View className='p-4 bg-stone-800 rounded-lg w-[44%] shadow-lg'>
             <Text className='text-xl font-semibold text-white'>USA</Text>
             <View className='flex flex-row mt-2'>
                 <Text className='text-gray-300 text-lg mr-1'>Núm. de Clientes:</Text>
-                <Text className='text-white text-lg font-semibold'>{clientUSA.length}</Text>
+                <Text className='text-white text-lg font-semibold'>{clientUSA.length ? clientUSA.length : '...'}</Text>
             </View>
           </View>
         </View>

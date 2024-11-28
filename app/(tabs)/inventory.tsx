@@ -9,6 +9,8 @@ export default function HomeScreen() {
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
   const [inventario, setInventario] = React.useState<{ Cantidad: number, Nombre: string, Precio: number } []>([]);
+  const [ultimoInventario, setUltimoInventario] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number } []>([]);
+  const [ultimoInventarioAvailable, setUltimoInventarioAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(9);
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
@@ -43,6 +45,38 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchUltimoInventario = async () => {
+    try{
+      const response = await fetch(
+        `http://localhost:3000/ventasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=FechaVenta&ascDesc=ASC`
+      );
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const inventario = [
+          ...data.map((event) => ({
+            Cantidad: event.Cantidad,
+            Nombre_Mueble: event.Nombre_Mueble,
+            Precio: event.Precio,
+          })),
+        ];
+        setUltimoInventario(inventario);
+        setUltimoInventarioAvailable(true);
+      } else{
+        console.error("Expected an array, received:", data);
+        setUltimoInventarioAvailable(false);
+        setUltimoInventario([]);
+      }
+    } catch(e) {
+      setUltimoInventarioAvailable(false);
+      setUltimoInventario([]);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchUltimoInventario();
+    const intervalId = setInterval(fetchUltimoInventario, 1000);
+    return () => clearInterval(intervalId);
+  }, [establecimiento]);
 
 React.useEffect(() => {
   fetchInventario();
@@ -159,15 +193,15 @@ React.useEffect(() => {
             <Text className='text-xl font-bold text-white'>Último Mueble Añadido a Inventario</Text>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
-              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Nombre}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimoInventario.at(-1)?.Nombre_Mueble ? ultimoInventario.at(-1)?.Nombre_Mueble : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
-              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Cantidad}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimoInventario.at(-1)?.Cantidad ? ultimoInventario.at(-1)?.Cantidad : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
-              <Text className='text-white font-semibold text-lg'>{inventario.at(-1)?.Precio}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimoInventario.at(-1)?.Precio ? ultimoInventario.at(-1)?.Precio : 'Cargando...'}</Text>
             </View>
           </View>
         </View>

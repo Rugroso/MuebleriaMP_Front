@@ -13,7 +13,9 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [compras, setCompras] = React.useState<{ Cantidad : number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Date }[]>([]);
+  const [compras, setCompras] = React.useState<{ Cantidad : number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Date, Compra_Total:number }[]>([]);
+  const [ultimaCompra, setUltimaCompra] = React.useState<{ Cantidad : number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Date, Compra_Total:number }[]>([]);
+  const [ultimaCompraAvailable, setUltimaCompraAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(1);
   const [comprasAvailable, setComprasAvailable] = React.useState(false);
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
@@ -33,6 +35,7 @@ export default function HomeScreen() {
           Precio: event.Precio,
           Nombre_Distribuidor: event.Distribuidor,
           FechaCompra: new Date(event.FechaCompra),
+          Compra_Total: event.Compra_Total
         }));
         setCompras(compras);
         setComprasAvailable(true);
@@ -42,6 +45,36 @@ export default function HomeScreen() {
       setComprasAvailable(false);
     }
   };
+
+  const fetchUltimaCompra = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/comprasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=Fecha&ascDesc=ASC`
+      );
+      const data = await response.json();
+      if(Array.isArray(data)) {
+        const compras = data.map((event) => ({
+          Cantidad: event.Cantidad,
+          Nombre_Mueble: event.Nombre_Mueble,
+          Precio: event.Precio,
+          Nombre_Distribuidor: event.Distribuidor,
+          FechaCompra: new Date(event.FechaCompra),
+          Compra_Total: event.Compra_Total
+        }));
+        setUltimaCompra(compras);
+        setComprasAvailable(true);
+      }
+    } catch(e) {
+      setUltimaCompra([]);
+      setComprasAvailable(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchUltimaCompra();
+    const intervalId = setInterval(fetchUltimaCompra, 1000);
+    return () => clearInterval(intervalId);
+  }, [establecimiento]);
 
   React.useEffect(() => {
     console.log(orderBy)
@@ -164,19 +197,19 @@ export default function HomeScreen() {
             <Text className='text-xl font-bold text-white'>Último Mueble Comprado</Text>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Producto:</Text>
-              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.Nombre_Mueble}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Nombre_Mueble ? ultimaCompra.at(-1)?.Nombre_Mueble : 'Cargando...'} </Text>
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Cantidad:</Text>
-              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.Cantidad}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Cantidad ? ultimaCompra.at(-1)?.Cantidad : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
-              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.Precio}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Compra_Total ? ultimaCompra.at(-1)?.Compra_Total : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
-              <Text className='text-white font-semibold text-lg'>{compras.at(-1)?.FechaCompra?.toLocaleDateString()}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.FechaCompra?.toLocaleDateString() ? ultimaCompra.at(-1)?.FechaCompra?.toLocaleDateString() : 'Cargando...'}</Text>
             </View>
           </View>
         </View>
@@ -206,7 +239,7 @@ export default function HomeScreen() {
                     <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
                       <View className='flex flex-row'>
                         <Text className='text-gray-300 mr-1'>Precio:</Text>
-                        <Text className='text-white font-semibold'>{data.Precio}</Text>
+                        <Text className='text-white font-semibold'>{data.Compra_Total}</Text>
                       </View>
                       <View className='flex flex-row'>
                         <Text className='text-gray-300 mr-1'>Cantidad:</Text>
