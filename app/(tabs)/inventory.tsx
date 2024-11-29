@@ -11,7 +11,7 @@ export default function HomeScreen() {
   const [inventario, setInventario] = React.useState<{ Cantidad: number, Nombre: string, Precio: number } []>([]);
   const [ultimoInventario, setUltimoInventario] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number } []>([]);
   const [ultimoInventarioAvailable, setUltimoInventarioAvailable] = React.useState(false);
-  const [establecimiento, setEstablecimiento] = React.useState(9);
+  const [establecimiento, setEstablecimiento] = React.useState(1);
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
   const [inventarioAvailable, setinventarioAvailable] = React.useState(false);

@@ -101,7 +101,7 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
         if (Array.isArray(sucursales)) {
           const options = sucursales.map((sucursal) => ({
             label: sucursal.Nombre,
-            value: sucursal.SucursalID,
+            value: sucursal.EstablecimientoID,
           }));
           setSucursalesUSA(options);
         }

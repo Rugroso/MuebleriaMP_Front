@@ -39,7 +39,7 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
 
   const getMuebles = async () => {
     try {
-      const response = await fetch('http://localhost:3000/Muebles');
+      const response = await fetch(`http://localhost:3000/inventarioestablecimiento?EstablecimientoID=${establecimientoID}&orderBy=Nombre&ascDesc=DESC`);
       if (response.ok) {
         const muebles = await response.json();
         if (Array.isArray(muebles)) {
@@ -59,10 +59,7 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
   
   useEffect(()=> {
     getMuebles();
-  },[])
-  useEffect(()=> {
-    console.log(selectedFurniture)
-  },[selectedFurniture])
+  },[establecimientoID])
 
   const handleSubmit = async () => {
     if (!clientID || !quantity || !selectedFurniture || !selectedMetodoPago) {
@@ -133,7 +130,7 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
     setSelectedFurniture(null);
     setSelectedMetodoPago(null);
     setInstallments('');
-    setInitialPayment(''); // Resetea el estado del pago inicial
+    setInitialPayment(''); 
     setIsOpen(false);
   };
 
