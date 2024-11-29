@@ -6,7 +6,8 @@ import { Alert } from 'react-native';
 
 const fetchData = async (endpoint: string) => {
   try {
-    const response = await fetch(`http://localhost:3000/${endpoint}`);
+    const endpoint_local = "192.168.100.7"
+    const response = await fetch(`http://${endpoint_local}/${endpoint}`);
     if (!response.ok) throw new Error(`Error al obtener datos de ${endpoint}`);
     return await response.json();
   } catch (error) {
@@ -172,18 +173,18 @@ export default function HomeScreen() {
         <Pressable onPress={async () => {
           try {
             // Obtener datos de clientes en crédito
-            const response = await fetch('http://localhost:3000/clientecredito'); // Asegúrate de que este endpoint existe
+            const response = await fetch('http://192.168.100.7/clientecredito'); // Asegúrate de que este endpoint existe
             const datosAPI = await response.json();
-
+            console.log(datosAPI);
             // Formateamos los datos
             const datosReporte = {
               fecha: new Date().toLocaleDateString(), // O la fecha que desees
-              clientes: datosAPI.map((cliente: { nombre: string; direccion: string; telefono: string; adeudo: number; mesesRestantes: number; }) => ({
-                nombre: cliente.nombre,
-                direccion: cliente.direccion,
-                telefono: cliente.telefono,
-                adeudo: cliente.adeudo,
-                mesesRestantes: cliente.mesesRestantes
+              clientes: datosAPI.map((cliente: { Cliente: string; Direccion: string; Telefono: string; TOTAL_ADEUDO: number; Meses_Restantes: number; }) => ({
+                nombre: cliente.Cliente,
+                direccion: cliente.Direccion,
+                telefono: cliente.Telefono,
+                adeudo: cliente.TOTAL_ADEUDO,
+                mesesRestantes: cliente.Meses_Restantes
               }))
             };
 
@@ -248,16 +249,17 @@ export default function HomeScreen() {
                       
                       // Obtener datos con el nuevo query string
                       const datosAPI = await fetchData(queryString);
+                      console.log(datosAPI); // Verifica la estructura de datosAPI
                       
                       // Formateamos los datos
                       const datosReporte = {
                         fecha: formData.fecha,
-                        reportes: datosAPI.map((reporte: { distribuidor: any; mueble: any; cantidad: any; costoUnitario: any; costoTotal: any; }) => ({
-                          distribuidor: reporte.distribuidor,
-                          mueble: reporte.mueble,
-                          cantidad: reporte.cantidad,
-                          costoUnitario: reporte.costoUnitario,
-                          costoTotal: reporte.costoTotal
+                        reportes: datosAPI.map((reporte: { Distribuidor: any; Mueble: any; CANTIDAD: any; Costo_Unitario: any; Costo_Total: any; }) => ({
+                          distribuidor: reporte.Distribuidor,
+                          mueble: reporte.Mueble,
+                          cantidad: reporte.CANTIDAD,
+                          costoUnitario: reporte.Costo_Unitario,
+                          costoTotal: reporte.Costo_Total
                         }))
                       };
 
@@ -315,16 +317,16 @@ export default function HomeScreen() {
                       
                       // Obtener datos con el nuevo query string
                       const datosAPI = await fetchData(queryString);
-                      
+                      console.log(datosAPI);
                       // Formateamos los datos
                       const datosReporte = {
                         fecha: ventasFormData.fecha,
-                        ventas: datosAPI.map((reporte: { distribuidor: any; producto: any; cantidad: any; costoUnitario: any; costoTotal: any; }) => ({
-                          distribuidor: reporte.distribuidor,
-                          producto: reporte.producto,
-                          cantidad: reporte.cantidad,
-                          costoUnitario: reporte.costoUnitario,
-                          costoTotal: reporte.costoTotal
+                        ventas: datosAPI.map((reporte: { Mueble: any; CANTIDAD: any; Costo_Unitario: any; Costo_Total: any; Victima: any; }) => ({
+                          nombre: reporte.Victima,
+                          mueble: reporte.Mueble,
+                          cantidad: reporte.CANTIDAD,
+                          costoUnitario: reporte.Costo_Unitario,
+                          costoTotal: reporte.Costo_Total
                         }))
                       };
 
@@ -375,17 +377,17 @@ export default function HomeScreen() {
                   onPress={async () => {
                     try {
                       // Obtener datos de muebles faltantes
-                      const queryString = `mueblesfaltantes?sucursal=${mueblesFormData.sucursal}`;
+                      const queryString = `mueblefaltante?id=${mueblesFormData.sucursal}`;
                       const datosAPI = await fetchData(queryString);
-                      
+                      console.log(datosAPI);
                       // Formateamos los datos
                       const datosReporte = {
                         sucursal: mueblesFormData.sucursal,
                         fecha: new Date().toISOString().split('T')[0],
-                        muebles: datosAPI.map((reporte: { mueble: string; precio: number; descripcion: string; }) => ({
-                          nombre: reporte.mueble,
-                          precio: reporte.precio,
-                          descripcion: reporte.descripcion
+                        muebles: datosAPI.map((reporte: { NOMBRE: string; PRECIO: number; DESCRIPCION: string; }) => ({
+                          nombre: reporte.NOMBRE,
+                          precio: reporte.PRECIO,
+                          descripcion: reporte.DESCRIPCION
                         }))
                       };
 
