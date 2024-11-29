@@ -1,28 +1,40 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import React from 'react';
 import MenuItems from '@/components/MenuItems';
 import AddClient from '@/components/AddClient';
 import { MaterialIcons } from '@expo/vector-icons';
 
-
-
 export default function HomeScreen() {
-
-
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [size, setSize] = React.useState(0);
+  const [searchQuery, setSearchQuery] = React.useState('');
   const [clients, setClients] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
   const [lastclient, setLastClient] = React.useState<{ ClienteID: number; Nombre: string; Telefono: number; Correo: string; Direccion:string }[]>([]);
-  const [lastClientAvailable, setLastClientAvailable] = React.useState(false)
-  const [clientAvailable, setClientsAvailable] = React.useState(false)
+  const [clientAvailable, setClientsAvailable] = React.useState(false);
   const [clientMX, setClientMX] = React.useState<{ ClienteID: number}[]>([]);
-  const [clientMXAvailable, setClientMXAvailable] = React.useState(false)
   const [clientUSA, setClientUSA] = React.useState<{ ClienteID: number}[]>([]);
-  const [clientUSAAvailable, setClientUSAAvailable] = React.useState(false)
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
+
+  const filteredClients = React.useMemo(() => {
+    if (!searchQuery) return clients;
+    
+    const query = searchQuery.toLowerCase();
+    return clients.filter(client => {
+      const nombre = client.Nombre?.toLowerCase() || '';
+      const clienteID = client.ClienteID?.toString() || '';
+      const telefono = client.Telefono?.toString() || '';
+      const correo = client.Correo?.toLowerCase() || '';
+      const direccion = client.Direccion?.toLowerCase() || '';
+
+      return nombre.includes(query) ||
+             clienteID.includes(query) ||
+             telefono.includes(query) ||
+             correo.includes(query) ||
+             direccion.includes(query);
+    });
+  }, [clients, searchQuery]);
 
   const fetchClients = async () => {
     try {
@@ -68,14 +80,11 @@ export default function HomeScreen() {
           })),
         ];
         setLastClient(clientes);
-        setLastClientAvailable(true)
       } else {
         console.error("Expected an array, received:", data);
-        setLastClientAvailable(false)
         setLastClient([]);
       }
     } catch (error) {
-      setLastClientAvailable(false)
       setLastClient([]);
     }
 
@@ -92,14 +101,11 @@ export default function HomeScreen() {
           })),
         ];
         setClientMX(clientes);
-        setClientMXAvailable(true)
       } else {
         console.error("Expected an array, received:", data);
-        setClientMXAvailable(false)
         setClientMX([]);
       }
     } catch (error) {
-      setClientMXAvailable(false)
       setClientMX([]);
     }
 
@@ -116,17 +122,13 @@ export default function HomeScreen() {
           })),
         ];
         setClientUSA(clientes);
-        setClientUSAAvailable(true)
       } else {
         console.error("Expected an array, received:", data);
-        setClientUSAAvailable(false)
         setClientUSA([]);
       }
     } catch (error) {
-      setClientUSAAvailable(false)
       setClientUSA([]);
     }
-
   };
 
   React.useEffect(() => {
@@ -137,7 +139,6 @@ export default function HomeScreen() {
   React.useEffect(() => {
     fetchClients()
   }, [orderBy, ascDesc]);
-
 
   const handleSelectionChange = (value:any, topic:string) => {
     setIsOpen(false);
@@ -159,7 +160,7 @@ export default function HomeScreen() {
         setOrderBy('Nombre');
         setascDesc('DESC');
       }
-      }
+    }
   };
 
   const handleTouchable = (topic:string, itemsType:string) => {
@@ -175,7 +176,6 @@ export default function HomeScreen() {
         </Text>
       </View>
       <ScrollView className='p-5 flex-1 w-full'>
-
         <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center shadow-lg'>
             <View className='w-[9%]'>
                 <MaterialIcons name="person" size={32} color="white" />
@@ -194,7 +194,7 @@ export default function HomeScreen() {
         </View>
 
         <View className='rounded-lg mb-4 flex-row items-center justify-start w-screen'>
-        <View className='mr-4 p-4 bg-stone-800 rounded-lg w-[44%] shadow-lg'>
+          <View className='mr-4 p-4 bg-stone-800 rounded-lg w-[44%] shadow-lg'>
             <Text className='text-xl font-semibold text-white'>MX</Text>
             <View className='flex flex-row mt-2'>
                 <Text className='text-gray-300 text-lg mr-1'>Núm. de Clientes:</Text>
@@ -210,64 +210,79 @@ export default function HomeScreen() {
           </View>
         </View>
 
-
         <View className='bg-stone-800 p-4 rounded-lg mb-10 shadow-lg'>
-          <View className='flex flex-row'>
-            <Text className='text-xl font-semibold text-white mb-2'>
-              Ordenar por
-            </Text>
-            <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar | Clientes', 'ordenar')}>
-              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4 shadow-md'>
-                <MaterialIcons name="sort" size={18} color="white" />
-              </View>
-            </TouchableOpacity>
+          <View className='flex flex-row justify-between items-center mb-4'>
+            <View className='flex flex-row items-center'>
+              <Text className='text-xl font-semibold text-white'>
+                Ordenar por
+              </Text>
+              <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar | Clientes', 'ordenar')}>
+                <View className='bg-slate-500 rounded-full p-2 ml-2 shadow-md'>
+                  <MaterialIcons name="sort" size={18} color="white" />
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
+
+          {/* Barra de búsqueda */}
+          <View className='mb-4'>
+            <View className='bg-stone-900 rounded-lg flex-row items-center px-3 py-2'>
+              <MaterialIcons name="search" size={24} color="white" className="mr-2" />
+              <TextInput
+                placeholder="Buscar clientes..."
+                placeholderTextColor="#9CA3AF"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                className='flex-1 text-white ml-2'
+              />
+            </View>
+          </View>
+
           <ScrollView className={`${clientAvailable ? 'h-[30rem]' : 'h-12'} bg-stone-900 p-4 rounded-2xl`}>
-          {clientAvailable?
-          <View >
-          {clients.map((data, key) => {
-                    return (     
-                      <View key={key} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
-                        <View className='w-[9%]'>
-                            <MaterialIcons name="person" size={32} color="white" />
-                        </View>
+            {clientAvailable ?
+              <View>
+                {filteredClients.map((data, key) => {
+                  return (     
+                    <View key={key} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
+                      <View className='w-[9%]'>
+                        <MaterialIcons name="person" size={32} color="white" />
+                      </View>
                       <View>            
-                      <View className='ml-4 w-[72%]' key={key}>
-                        <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
-                        <View className='flex flex-row'>
-                          <Text className='text-gray-300 mr-1'>ID:</Text>
-                          <Text className='text-white font-semibold'>{data.ClienteID}</Text>
-                        </View>
-                        <View className='flex flex-row'>
-                          <Text className='text-gray-300 mr-1'>Teléfono:</Text>
-                          <Text className='text-white font-semibold'>{data.Telefono}</Text>
-                        </View>
-                        <View className='flex flex-row'>
-                          <Text className='text-gray-300 mr-1'>Correo:</Text>
-                          <Text className='text-white font-semibold'>{data.Correo}</Text>
-                        </View>
-                        <View className='flex flex-row'>
-                          <Text className='text-gray-300 mr-1'>Dirreción:</Text>
-                          <Text className='text-white font-semibold'>{data.Direccion}</Text>
+                        <View className='ml-4 w-[72%]' key={key}>
+                          <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
+                          <View className='flex flex-row'>
+                            <Text className='text-gray-300 mr-1'>ID:</Text>
+                            <Text className='text-white font-semibold'>{data.ClienteID}</Text>
+                          </View>
+                          <View className='flex flex-row'>
+                            <Text className='text-gray-300 mr-1'>Teléfono:</Text>
+                            <Text className='text-white font-semibold'>{data.Telefono}</Text>
+                          </View>
+                          <View className='flex flex-row'>
+                            <Text className='text-gray-300 mr-1'>Correo:</Text>
+                            <Text className='text-white font-semibold'>{data.Correo}</Text>
+                          </View>
+                          <View className='flex flex-row'>
+                            <Text className='text-gray-300 mr-1'>Dirreción:</Text>
+                            <Text className='text-white font-semibold'>{data.Direccion}</Text>
+                          </View>
                         </View>
                       </View>
                     </View>
-                  </View>
-              )
-            })}
-            </View>
-          :          
-          <View className='flex h-full w-full items-center justify-center'>
-            <Text className='text-white font-semibold'>DATOS CARGANDO...</Text>
-          </View>
-        }
-        
+                  )
+                })}
+              </View>
+              :          
+              <View className='flex h-full w-full items-center justify-center'>
+                <Text className='text-white font-semibold'>DATOS CARGANDO...</Text>
+              </View>
+            }
           </ScrollView>
         </View>
       </ScrollView>
       <View className='absolute bottom-0 right-0'>
         <TouchableOpacity onPress={() => setAddOpen(true)}>
-          <View className=' bg-slate-500 rounded-full mb-3 mr-3 shadow-md'>
+          <View className='bg-slate-500 rounded-full mb-3 mr-3 shadow-md'>
             <MaterialIcons name="add" size={48} color="white"/>
           </View>
         </TouchableOpacity>
