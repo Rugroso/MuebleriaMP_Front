@@ -1,13 +1,16 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
+const img = "https://i.imgur.com/8QidqG9.png";
+
+
 interface ReporteCompras {
   fecha: string;
   reportes: {
     distribuidor: string;
     mueble: string;
-    cantidad: string;
-    costoUnitario: string;
+    cantidad: number;
+    costoUnitario: number;
     costoTotal: number;
   }[];
 }
@@ -35,6 +38,7 @@ interface VentasReporte {
 }
 
 interface MueblesReporte {
+  sucursal: string;
   fecha: string;
   muebles: {
     nombre: string;
@@ -63,10 +67,10 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
             }
             .logo {
               position: absolute;
-              top: 20;
-              left: 220;
-              width: 150px;
-              height: 150px;
+              top: 60;
+              left: 65;
+              width: 120px;
+              height: 120px;
               margin-bottom: 20px;
             }
             .title {
@@ -94,42 +98,49 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
               margin-top: 100px;
               text-align: center;
               font-size: 12px;
+              position: absolute;
+              bottom: 50;
+              left: 150;
+            }
+            p{
+              text-align: center;
             }
           </style>
         </head>
         <body>
           <div class="header">
-            <img class="logo" src="https://i.imgur.com/YOUR_LOGO.png" alt="Logo Muebleria" />
+            <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
-            <h2>Reporte de Ventas</h2>
-            <h3>Clientes en Crédito a día de ${data.fecha}</h3>
+            <h2>Reporte de Inventario</h2>
+            <h3>Compras en el mes de noviembre a día de ${data.fecha}</h3>
           </div>
 
           <table>
             <thead>
               <tr>
                 <th>#</th>
-                <th>Nombre</th>
-                <th>Dirección</th>
-                <th>Teléfono</th>
-                <th>Adeudo</th>
-                <th>Meses restantes</th>
+                <th>Distribuidor</th>
+                <th>Mueble</th>
+                <th>Cantidad</th>
+                <th>Costo Unitario</th>
+                <th>Costo Total</th>
               </tr>
             </thead>
             <tbody>
-              ${data.reportes.map(cliente => `
+              ${data.reportes.map((reporte, index) => `
                 <tr>
-                  <td>${cliente.distribuidor}</td>
-                  <td>${cliente.mueble}</td>
-                  <td>${cliente.cantidad}</td>
-                  <td>${cliente.costoUnitario}</td>
-                  <td>$${cliente.costoTotal}</td>
+                  <td>${index + 1}</td>
+                  <td>${reporte.distribuidor}</td>
+                  <td>${reporte.mueble}</td>
+                  <td>${reporte.cantidad}</td>
+                  <td>$${reporte.costoUnitario}</td>
+                  <td>$${reporte.costoTotal}</td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
 
-          <p>Las personas en este documento se encuentran con compras a crédito actualmente.</p>
+          <p>Los muebles en este documento son los muebles comprados a distribuidoras en el mes ${data.fecha.split('/', 1)}.</p>
 
           <div class="confidential">
             Documento Propiedad de Muebleria Don Salinas de Gortari Machu Picchu. Confidencial.
@@ -137,8 +148,6 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
         </body>
       </html>
     `;
-
-    
 
     // Genera el PDF
     const { uri } = await Print.printToFileAsync({
@@ -174,10 +183,10 @@ export const generarReporteVentas = async (data: VentasReporte) => {
             }
             .logo {
               position: absolute;
-              top: 20;
-              left: 220;
-              width: 150px;
-              height: 150px;
+              top: 60;
+              left: 65;
+              width: 120px;
+              height: 120px;
               margin-bottom: 20px;
             }
             .title {
@@ -205,12 +214,18 @@ export const generarReporteVentas = async (data: VentasReporte) => {
               margin-top: 100px;
               text-align: center;
               font-size: 12px;
+              position: absolute;
+              bottom: 50;
+              left: 150;
+            }
+            p{
+              text-align: center;
             }
           </style>
         </head>
         <body>
           <div class="header">
-            <img class="logo" src="https://i.imgur.com/YOUR_LOGO.png" alt="Logo Muebleria" />
+            <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Ventas</h2>
             <h3>Ventas en el mes de noviembre a día de ${data.fecha}</h3>
@@ -262,13 +277,35 @@ export const generarReporteVentas = async (data: VentasReporte) => {
 
 export const generarReporteMuebles = async (data: MueblesReporte) => {
   try {
+    let ciudad = "";
+    if(data.sucursal === "1"){
+      ciudad = "CDMX"
+    }else if(data.sucursal === "2"){
+      ciudad = "Los Angeles"
+    }else if(data.sucursal === "3"){
+      ciudad = "Guadalajara"
+    }else if(data.sucursal === "4"){
+      ciudad = "Houston"
+    }else if(data.sucursal === "5"){
+      ciudad = "Monterrey"
+    }else if(data.sucursal === "6"){
+      ciudad = "Chicago"
+    }else if(data.sucursal === "7"){
+      ciudad = "Puebla"
+    }else if(data.sucursal === "8"){
+      ciudad = "New York"
+    }else if(data.sucursal === "9"){
+      ciudad = "Tijuana"
+    }else if(data.sucursal === "10"){
+      ciudad = "San Francisco"
+    }
     const html = `
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
           <style>
-            body {
-              font-family: 'Helvetica';
+            body { 
+              font-family: 'Helvetica'; 
               padding: 20px;
               max-width: 800px;
               margin: 0 auto;
@@ -279,10 +316,10 @@ export const generarReporteMuebles = async (data: MueblesReporte) => {
             }
             .logo {
               position: absolute;
-              top: 20;
-              left: 220;
-              width: 150px;
-              height: 150px;
+              top: 60;
+              left: 65;
+              width: 120px;
+              height: 120px;
               margin-bottom: 20px;
             }
             .title {
@@ -310,15 +347,21 @@ export const generarReporteMuebles = async (data: MueblesReporte) => {
               margin-top: 100px;
               text-align: center;
               font-size: 12px;
+              position: absolute;
+              bottom: 50;
+              left: 150;
+            }
+            p{
+              text-align: center;
             }
           </style>
         </head>
         <body>
           <div class="header">
-            <img class="logo" src="https://i.imgur.com/YOUR_LOGO.png" alt="Logo Muebleria" />
+            <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Inventario</h2>
-            <h3>Muebles sin stock en Establecimiento Tijuana a día de ${data.fecha}</h3>
+            <h3>Muebles sin stock en Establecimiento ${ciudad} a día de ${data.fecha}</h3>
           </div>
 
           <table>
@@ -369,8 +412,8 @@ export const generarReporteCredito = async (data: CreditoReporte) => {
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
           <style>
-            body {
-              font-family: 'Helvetica';
+            body { 
+              font-family: 'Helvetica'; 
               padding: 20px;
               max-width: 800px;
               margin: 0 auto;
@@ -381,10 +424,10 @@ export const generarReporteCredito = async (data: CreditoReporte) => {
             }
             .logo {
               position: absolute;
-              top: 20;
-              left: 220;
-              width: 150px;
-              height: 150px;
+              top: 60;
+              left: 65;
+              width: 120px;
+              height: 120px;
               margin-bottom: 20px;
             }
             .title {
@@ -412,12 +455,18 @@ export const generarReporteCredito = async (data: CreditoReporte) => {
               margin-top: 100px;
               text-align: center;
               font-size: 12px;
+              position: absolute;
+              bottom: 50;
+              left: 150;
+            }
+            p{
+              text-align: center;
             }
           </style>
         </head>
         <body>
           <div class="header">
-            <img class="logo" src="https://i.imgur.com/YOUR_LOGO.png" alt="Logo Muebleria" />
+            <img class="logo" src="${img} alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Crédito</h2>
             <h3>Clientes en Crédito a día de ${data.fecha}</h3>
