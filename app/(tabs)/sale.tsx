@@ -19,8 +19,8 @@ export default function HomeScreen() {
   const [ultimaVentaAvailable, setUltimaVentaAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(1);
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
-  const [orderBy, setOrderBy] = React.useState('clienteID');
-  const [ascDesc, setascDesc] = React.useState('ASC');
+  const [orderBy, setOrderBy] = React.useState('FechaVenta');
+  const [ascDesc, setascDesc] = React.useState('DESC');
 
 
   const fetchVentas = async () => {

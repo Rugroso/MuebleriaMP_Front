@@ -11,7 +11,7 @@ export default function HomeScreen() {
   const [inventario, setInventario] = React.useState<{ Cantidad: number, Nombre: string, Precio: number } []>([]);
   const [ultimoInventario, setUltimoInventario] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number } []>([]);
   const [ultimoInventarioAvailable, setUltimoInventarioAvailable] = React.useState(false);
-  const [establecimiento, setEstablecimiento] = React.useState(9);
+  const [establecimiento, setEstablecimiento] = React.useState(1);
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
   const [inventarioAvailable, setinventarioAvailable] = React.useState(false);
@@ -48,7 +48,7 @@ export default function HomeScreen() {
   const fetchUltimoInventario = async () => {
     try{
       const response = await fetch(
-        `http://localhost:3000/ventasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=FechaVenta&ascDesc=ASC`
+        `http://localhost:3000/comprasestablecimiento?EstablecimientoID=${establecimiento}&orderBy=FechaVenta&ascDesc=ASC`
       );
       const data = await response.json();
       if (Array.isArray(data)) {
@@ -200,8 +200,8 @@ React.useEffect(() => {
               <Text className='text-white font-semibold text-lg'>{ultimoInventario.at(-1)?.Cantidad ? ultimoInventario.at(-1)?.Cantidad : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
-              <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
-              <Text className='text-white font-semibold text-lg'>{ultimoInventario.at(-1)?.Precio ? ultimoInventario.at(-1)?.Precio : 'Cargando...'}</Text>
+              <Text className='text-gray-300 text-lg mr-1'>Precio Unitario:</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimoInventario.at(-1)?.Precio ? `$${ultimoInventario.at(-1)?.Precio}` : 'Cargando...'}</Text>
             </View>
           </View>
         </View>
@@ -230,8 +230,8 @@ React.useEffect(() => {
                   <View className='ml-4 w-[95%]'>
                     <Text className='text-lg font-semibold text-white'>{data.Nombre}</Text>
                     <View className='flex flex-row'>
-                      <Text className='text-gray-300 mr-1'>Precio:</Text>
-                      <Text className='text-white font-semibold'>{data.Precio}</Text>
+                      <Text className='text-gray-300 mr-1'>Precio Unitario:</Text>
+                      <Text className='text-white font-semibold'>${data.Precio}</Text>
                     </View>
                     <View className='flex flex-row'>
                       <Text className='text-gray-300 mr-1'>Cantidad:</Text>

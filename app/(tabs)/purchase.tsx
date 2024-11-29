@@ -19,8 +19,8 @@ export default function HomeScreen() {
   const [establecimiento, setEstablecimiento] = React.useState(1);
   const [comprasAvailable, setComprasAvailable] = React.useState(false);
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
-  const [orderBy, setOrderBy] = React.useState('Cantidad');
-  const [ascDesc, setascDesc] = React.useState('ASC');
+  const [orderBy, setOrderBy] = React.useState('Fecha');
+  const [ascDesc, setascDesc] = React.useState('DESC');
 
   const fetchCompras = async () => {
     try {
@@ -86,7 +86,7 @@ export default function HomeScreen() {
 
   React.useEffect(() => {
     fetchCompras()
-  }, [orderBy, ascDesc]);
+  }, [orderBy, ascDesc, establecimiento]);
   
   
 
@@ -205,7 +205,7 @@ export default function HomeScreen() {
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
-              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Compra_Total ? ultimaCompra.at(-1)?.Compra_Total : 'Cargando...'}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Compra_Total ? `$${ultimaCompra.at(-1)?.Compra_Total}` : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
@@ -239,7 +239,7 @@ export default function HomeScreen() {
                     <Text className='text-lg font-semibold text-white'>{data.Nombre_Mueble}</Text>
                       <View className='flex flex-row'>
                         <Text className='text-gray-300 mr-1'>Precio:</Text>
-                        <Text className='text-white font-semibold'>{data.Compra_Total}</Text>
+                        <Text className='text-white font-semibold'>${data.Compra_Total}</Text>
                       </View>
                       <View className='flex flex-row'>
                         <Text className='text-gray-300 mr-1'>Cantidad:</Text>

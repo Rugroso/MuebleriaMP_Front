@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Modal, Pressable, TextInput } from 'react-native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { generarReporteCompras, generarReporteVentas, generarReporteMuebles, generarReporteCredito } from '../../utils/pdfGenerator';
 import { Alert } from 'react-native';
 
@@ -25,6 +25,54 @@ export default function HomeScreen() {
   });
   const [ventasFormData, setVentasFormData] = useState({ fecha: '' });
   const [mueblesFormData, setMueblesFormData] = useState({ sucursal: '' });
+  const [ventaDelDia, setVentaDelDia] = useState<{ VENTAS_DEL_DIA : string, CANTIDAD_TOTAL_VENTA: string }[]>([]);
+  const [inventarioTotal, setInventarioTotal] = useState<{ Total_Productos : string, Valor_Total: string }[]>([]);
+
+
+  const fetchViewVentaDia = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/ventadeldia`);
+      if (!response.ok) throw new Error(`Error al obtener datos de la venta del dia`);
+      const data = await response.json();
+      if(Array.isArray(data)) {
+        const ventas = data.map((event) => ({
+          ...event
+        }));
+        setVentaDelDia(ventas);
+      }
+    } catch(e) {
+      setVentaDelDia([]);
+    }
+  };
+
+
+  const fetchInventarioTotal = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/inventariototal`);
+      if (!response.ok) throw new Error(`Error al obtener datos de la venta del dia`);
+      const data = await response.json();
+      if(Array.isArray(data)) {
+        const inventario = data.map((event) => ({
+          ...event
+        }));
+        setInventarioTotal(inventario);
+      }
+    } catch(e) {
+      setInventarioTotal([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchViewVentaDia();
+    const intervalId = setInterval(fetchViewVentaDia, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    fetchInventarioTotal();
+    const intervalId = setInterval(fetchInventarioTotal, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
   
 
   return (
@@ -49,8 +97,14 @@ export default function HomeScreen() {
           <MaterialIcons name="attach-money" size={32} color="#015c1b" />
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Venta del Día</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Total Ventas: $2,000.00</Text>
-            <Text className='text-lg text-gray-300'>Productos Vendidos: 15</Text>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Total de Ventas:</Text>
+              <Text className='text-white font-semibold text-lg'> {ventaDelDia[0]?.VENTAS_DEL_DIA ? `$${ventaDelDia[0]?.VENTAS_DEL_DIA}`  : 'Cargando...'}  </Text>
+            </View>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Productos Vendidos:</Text>
+              <Text className='text-white font-semibold text-lg'> {ventaDelDia[0]?.CANTIDAD_TOTAL_VENTA ? `${ventaDelDia[0]?.CANTIDAD_TOTAL_VENTA}`  : 'Cargando...'}  </Text>
+            </View>
           </View>
         </View>
 
@@ -58,8 +112,14 @@ export default function HomeScreen() {
           <FontAwesome name="archive" size={32} color="gray" />
           <View className='ml-4'>
             <Text className='text-xl font-semibold text-white'>Inventario Total</Text>
-            <Text className='text-lg text-gray-300 mt-2'>Productos en Inventario: 350</Text>
-            <Text className='text-lg text-gray-300'>Valor Estimado: $45,000.00</Text>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Valor Total en Inventario:</Text>
+              <Text className='text-white font-semibold text-lg'> {inventarioTotal[0]?.Valor_Total ? `$${inventarioTotal[0]?.Valor_Total}`  : 'Cargando...'}  </Text>
+            </View>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Productos en Inventario:</Text>
+              <Text className='text-white font-semibold text-lg'> {inventarioTotal[0]?.Total_Productos ? `${inventarioTotal[0]?.Total_Productos}`  : 'Cargando...'}  </Text>
+            </View>
           </View>
         </View>
         <View className="my-4 border-t border-gray-600" />
