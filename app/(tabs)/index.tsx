@@ -3,10 +3,12 @@ import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { generarReporteCompras, generarReporteVentas, generarReporteMuebles, generarReporteCredito } from '../../utils/pdfGenerator';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { SelectList } from 'react-native-dropdown-select-list'
+
 
 const fetchData = async (endpoint: string) => {
   try {
-    const endpoint_local = "localhost:3000"
+    const endpoint_local = "192.168.100.7"
     console.log(`http://${endpoint_local}/${endpoint}`)
     const response = await fetch(`http://${endpoint_local}/${endpoint}`);
     if (!response.ok) throw new Error(`Error al obtener datos de ${endpoint}`);
@@ -17,26 +19,48 @@ const fetchData = async (endpoint: string) => {
   }
 };
 
+// Define the type for resultados
+type Resultado = {
+  Precio_Mensual: string; // Adjust the type as necessary
+  // Add other properties if needed
+};
+
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [ventasModalVisible, setVentasModalVisible] = useState(false);
   const [mueblesModalVisible, setMueblesModalVisible] = useState(false);
-  const [formData, setFormData] = useState({
-    fecha: ''
-  });
-  const [ventasFormData, setVentasFormData] = useState({ fecha: '' });
+  const [calculadoraModalVisible, setCalculadoraModalVisible] = useState(false);
   const [mueblesFormData, setMueblesFormData] = useState({ sucursal: '' });
   const [ventaDelDia, setVentaDelDia] = useState<{ VENTAS_DEL_DIA : string, CANTIDAD_TOTAL_VENTA: string, RECAUDADO:string }[]>([]);
   const [inventarioTotal, setInventarioTotal] = useState<{ Total_Productos : string, Valor_Total: string }[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [showDatePickerVentas, setShowDatePickerVentas] = useState(false);
+  const [showDatePickerVentas, setShowDatePickerVentas] = useState(true);
   const [selectedDateVentas, setSelectedDateVentas] = useState<Date | undefined>(undefined);
+  const [selected, setSelected] = useState("");
+  const [cantidad, setCantidad] = useState("");
+  const [meses, setMeses] = useState("");
+  const [resultados, setResultados] = useState<Resultado[]>([]);
+  const [mostrarResultados, setMostrarResultados] = useState(false);
+
+
+  const data = [
+    {key:'1', value:'Sofá de Esquina'},
+    {key:'2', value:'Mesa de Comedor'},
+    {key:'3', value:'Silla de Oficina'},
+    {key:'4', value:'Litera Infantil',},
+    {key:'5', value:'Librero Moderno'},
+    {key:'6', value:'Armario de Ropas'},
+    {key:'7', value:'Escritorio Ejecutivo'},
+    {key:'8', value:'Sillón Reclinable'},
+    {key:'9', value:'Tocador con Espejo'},
+    {key:'10', value:'Mueble para TV'},
+  ]
 
 
   const fetchViewVentaDia = async () => {
     try {
-      const response = await fetch(`http://http://192.168.100.7/ventadeldia`);
+      const response = await fetch(`http://192.168.100.7/ventadeldia`);
       if (!response.ok) throw new Error(`Error al obtener datos de la venta del dia`);
       const data = await response.json();
       if(Array.isArray(data)) {
@@ -90,7 +114,7 @@ export default function HomeScreen() {
             className="absolute left-6 bottom-3"
           />
           <Text className="text-2xl font-semibold text-white mt-14">
-            ¡Hola, Abraham!
+            ¡Hola, Gibran!
           </Text>
         </View>
       <ScrollView className='p-5 flex-1 w-full'>
@@ -132,6 +156,27 @@ export default function HomeScreen() {
           </View>
         </View>
         <View className="my-4 border-t border-gray-600" />
+        <Text className='text-2xl font-semibold text-white mb-5 text-start'>
+          Calculadora de intereses
+        </Text>
+
+
+        <Pressable onPress={() => setCalculadoraModalVisible(true)}>
+          <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center justify-between shadow-lg'>
+            <View className='flex-row flex items-center'>
+              <FontAwesome name="calculator" size={32} color="#015c1b" />
+              <View className='ml-4 w-[80%]'>
+                <Text className='text-xl font-semibold text-white'>Calcula tu pago mensual</Text>
+              </View>
+            </View>
+            <View>
+              <FontAwesome name="arrow-right" size={18} color="white" />
+            </View>
+          </View>
+        </Pressable>
+
+        <View className="my-4 border-t border-gray-600" />
+
     
         <Text className='text-2xl font-semibold text-white mb-5 text-start'>
           Reportes Disponibles
@@ -318,9 +363,9 @@ export default function HomeScreen() {
             <View className='bg-stone-900 p-6 rounded-lg w-[90%]'>
               <Text className='text-xl font-bold mb-4 text-white'>Generar Reporte de Ventas</Text>
               
-            
+              <Pressable onPress={() => setShowDatePickerVentas(true)}>
                 <Text className='text-white'>Seleccionar Fecha</Text>
-          
+              </Pressable>
 
               {showDatePickerVentas && (
                 <View>
@@ -332,6 +377,7 @@ export default function HomeScreen() {
                       if (event.type === 'set' && date) {
                         setSelectedDateVentas(date);
                       }
+
                     }}
                   />
                   <View className='flex-row justify-between w-full mt-4'>
@@ -454,8 +500,95 @@ export default function HomeScreen() {
             </View>
           </View>
         </Modal>
-
         
+
+        <Modal
+          animationType='slide'
+          transparent={true}
+          visible={calculadoraModalVisible}
+          onRequestClose={() => setCalculadoraModalVisible(false)}
+        >
+          <View className='flex-1 justify-center items-center bg-black/50'>
+            <View className='bg-stone-900 p-6 rounded-lg w-[90%]'>
+              <Text className='text-xl font-bold mb-2 text-white'>Calculadora de intereses</Text>
+              <Text className='text-lg text-white mb-1'>Mueble</Text>
+              <SelectList 
+                  setSelected={(val: any) => setSelected(val)} 
+                  data={data} 
+                  save="key"
+                  boxStyles={{ backgroundColor: '#1f2937' }}
+                  dropdownStyles={{ backgroundColor: '#1f2937' }}
+                  dropdownTextStyles={{color: 'white'}}
+                  inputStyles={{color: 'white'}}
+                />
+              <Text className='text-lg text-white mb-1'>Cantidad</Text>
+              <TextInput
+                placeholder='Cantidad de muebles'
+                keyboardType='numeric'
+                className='border border-stone-700 p-2 rounded-lg text-white'
+                value={cantidad}
+                onChangeText={setCantidad}
+              />
+              <Text className='text-lg text-white mb-1'>Plazo</Text>
+              <TextInput
+                placeholder='Plazo en meses'
+                keyboardType='numeric'
+                className='border border-stone-700 p-2 rounded-lg text-white'
+                value={meses}
+                onChangeText={setMeses}
+              />
+              <View className='flex-row justify-center space-x-4 w-full mt-5'>
+                
+                <Pressable
+                  className='bg-red-500 px-4 py-2 rounded-lg mr-3'
+                  onPress={() => setCalculadoraModalVisible(false)}
+                >
+                  <Text className='text-white'>Cancelar</Text>
+                </Pressable>
+                <Pressable
+                  className='bg-blue-500 px-4 py-2 rounded-lg'
+                  onPress={async () => {
+                    try {
+                      // Obtener datos de muebles usando la key seleccionada
+                      const queryString = `mueblecoppel?id=${selected}&cantidad=${cantidad}&plazo=${meses}`;
+                      const datosAPI = await fetchData(queryString);
+                      console.log(datosAPI); // Verifica la estructura de datosAPI
+                      
+                      // Almacenar los resultados en un nuevo estado
+                      setResultados(datosAPI); // Asegúrate de tener un estado para resultados
+                      setMostrarResultados(true); // Controlar la visibilidad del cuadro de resultados
+                    } catch (error) {
+                      console.error('Error:', error);
+                      Alert.alert('Error', 'No se pudo generar el reporte');
+                    }
+                  }}
+                >
+                  <Text className='text-white'>Generar pago mensual</Text>
+                </Pressable>
+              </View>
+
+              {/* Cuadro de resultados */}
+              {mostrarResultados && (
+                <View className='bg-stone-800 p-4 rounded-lg mt-5'>
+                  <Text className='text-xl font-semibold text-white'>Pago Mensual</Text>
+                  {/* Aquí puedes mapear los resultados y mostrarlos */}
+                  {resultados.map((resultado, index) => (
+                    <Text key={index} className='text-white'>{resultado.Precio_Mensual}</Text>
+                  ))}
+                  <Pressable
+                    className='bg-red-500 px-4 py-2 rounded-lg mt-4'
+                    onPress={() => {
+                      setMostrarResultados(false); // Ocultar el cuadro de resultados
+                      setResultados([]); // Limpiar los resultados
+                    }}
+                  >
+                    <Text className='text-white'>Retroceder</Text>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+          </View>
+        </Modal>
 
       </ScrollView>
 
