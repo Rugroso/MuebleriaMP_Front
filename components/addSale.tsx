@@ -18,6 +18,12 @@ interface addSaleProps {
   establecimientoID: number;
 }
 
+interface FurnitureOption {
+  label: string;
+  value: string;
+  price: number;
+}
+
 const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID }) => {
   const [clientID, setClientID] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -28,13 +34,13 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [installments, setInstallments] = useState('');
   const [initialPayment, setInitialPayment] = useState('');
+  const [unitPrice, setUnitPrice] = useState(0)
+  const [total, setTotal] = useState(0)
   const [clientesOptions, setClientesOptions] = useState([
     { label: 'Abraham Saldivar', value: '1' },
   ]);
 
-  const [furnitureOptions, setFurnitureOptions] = useState([
-    { label: 'Silla', value: 'Silla' },
-  ]);
+  const [furnitureOptions, setFurnitureOptions] = useState<FurnitureOption[]>([]);
 
   const [metodoPagoOptions, setMetodoPagoOptions] = useState([
     { label: 'Contado', value: 'Contado' },
@@ -47,9 +53,12 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
       if (response.ok) {
         const muebles = await response.json();
         if (Array.isArray(muebles)) {
-          const furnitureOptions = muebles.map((event) => ({
+          const filteredMuebles = muebles.filter((event) => event.Cantidad > 0);
+          const furnitureOptions = filteredMuebles.map((event) => ({
             label: event.Nombre,
-            value: event.MuebleID, 
+            value: event.MuebleID,
+            price: event.Precio,
+            cantidad: event.Cantidad
           }));
           setFurnitureOptions(furnitureOptions);
           console.log('Furniture Options:', furnitureOptions);
@@ -89,6 +98,30 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
     const intervalId = setInterval(getMuebles, 1000);
     return () => clearInterval(intervalId);
   }, [establecimientoID]);
+
+  useEffect(() => {
+    if (selectedFurniture) {
+      const selectedOption = furnitureOptions.find(
+        (item) => item.value === selectedFurniture
+      );
+      setUnitPrice(selectedOption?.price || 0);
+    } else {
+      setUnitPrice(0);
+    }
+  }, [selectedFurniture]);
+
+  useEffect(() => {
+    if (quantity && unitPrice) {
+      const parsedQuantity = parseInt(quantity, 10);
+      if (!isNaN(parsedQuantity)) {
+        setTotal(parsedQuantity * unitPrice);
+      } else {
+        setTotal(0);
+      }
+    } else {
+      setTotal(0);
+    }
+  }, [quantity, unitPrice]);
 
   const handleSubmit = async () => {
     if (!clientID || !quantity || !selectedFurniture || !selectedMetodoPago) {
@@ -198,11 +231,11 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
                 dropDownContainerStyle={styles.dropdownContainer}
                 textStyle={styles.dropdownText}
                 placeholderStyle={styles.dropdownPlaceholder}
-                listMode="MODAL" // Habilitar vista en modal
-                searchable={true} // Habilitar búsqueda
+                listMode="MODAL" 
+                searchable={true}
                 searchPlaceholder="Buscar cliente..."
                 searchTextInputStyle={{
-                  color: 'white', // Texto blanco en el campo de búsqueda
+                  color: 'white',
                 }}
                 modalProps={{
                   animationType: 'fade',
@@ -304,6 +337,12 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
               <Text style={styles.submitButtonText}>VENDER</Text>
             </TouchableOpacity>
           </ScrollView>
+          <View style={{ marginTop: 12, flexDirection: 'row' }}>
+              <Text className='mt-2 mb-2 text-xl text-white'>Total a Pagar</Text>
+                <Text style={styles.total}>
+                  {total !== null ? `$${total.toFixed(2)}` : 'Introduce una cantidad'}
+                </Text>
+            </View>
         </View>
       </View>
     </Modal>
@@ -383,5 +422,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+  },
+  total: {
+    fontSize: 18,
+    color: 'white',
+    backgroundColor: '#2c2c2e',
+    padding: 8,
+    borderRadius: 8,
+    textAlign: 'center',
+    borderWidth: 1,
+    marginLeft:11,
+    borderColor: '#3a3a3c',
   },
 });
