@@ -17,8 +17,8 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Dayjs, Venta_Total:number;}[]>([]);
-  const [ultimaVenta, setUltimaVenta] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Dayjs, Venta_Total:number;}[]>([]);
+  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Dayjs, Venta_Total:number, CantidadPagada: number}[]>([]);
+  const [ultimaVenta, setUltimaVenta] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Dayjs, Venta_Total:number, CantidadPagada: number}[]>([]);
   const [ventasAvailable, setVentasAvailable] = React.useState(false);
   const [ultimaVentaAvailable, setUltimaVentaAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(1);
@@ -37,7 +37,8 @@ export default function HomeScreen() {
         const ventas = data.map((event) => ({
           ...event,
           FechaVenta: dayjs.utc(event.FechaVenta),
-          Venta_Total: event.Venta_Total
+          Venta_Total: event.Venta_Total,
+          CantidadPagada: event.CantidadPagada
         }));
         setVentas(ventas);
         setVentasAvailable(true);
@@ -62,7 +63,8 @@ export default function HomeScreen() {
         const ventas = data.map((event) => ({
           ...event,
           FechaVenta: dayjs.utc(event.FechaVenta),
-          Venta_Total: event.Venta_Total
+          Venta_Total: event.Venta_Total,
+          CantidadPagada: event.CantidadPagada
         }));
         setUltimaVenta(ventas);
         setUltimaVentaAvailable(true);
@@ -215,6 +217,10 @@ export default function HomeScreen() {
                   <Text className='text-white font-semibold text-lg'>${ultimaVenta.at(-1)?.Venta_Total}</Text>
                 </View>
                 <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Cantidad Pagada:</Text>
+                  <Text className='text-white font-semibold text-lg'>${ultimaVenta.at(-1)?.CantidadPagada}</Text>
+                </View>
+                <View className='flex flex-row'>
                   <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
                   <Text className='text-white font-semibold text-lg'>{ultimaVenta.at(-1)?.FechaVenta.format('DD/MM/YYYY HH:mm')}</Text>
                 </View>
@@ -230,7 +236,11 @@ export default function HomeScreen() {
                   <Text className='text-white font-semibold text-lg'>Cargando...</Text>
                 </View>
                 <View className='flex flex-row'>
-                  <Text className='text-gray-300 text-lg mr-1'>Precio:</Text>
+                  <Text className='text-gray-300 text-lg mr-1'>Total:</Text>
+                  <Text className='text-white font-semibold text-lg'>Cargando...</Text>
+                </View>
+                <View className='flex flex-row'>
+                  <Text className='text-gray-300 text-lg mr-1'>Cantidad Pagada:</Text>
                   <Text className='text-white font-semibold text-lg'>Cargando...</Text>
                 </View>
                 <View className='flex flex-row'>
@@ -276,6 +286,10 @@ export default function HomeScreen() {
                         <View className='flex flex-row'>
                           <Text className='text-gray-300 mr-1'>Total:</Text>
                           <Text className='text-white font-semibold'>${data.Venta_Total}</Text>
+                        </View>
+                        <View className='flex flex-row'>
+                          <Text className='text-gray-300 mr-1'>Cantidad Pagada:</Text>
+                          <Text className='text-white font-semibold'>${data.CantidadPagada}</Text>
                         </View>
                         <View className='flex flex-row'>
                           <Text className='text-gray-300 mr-1'>Fecha:</Text>

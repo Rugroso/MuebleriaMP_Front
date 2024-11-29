@@ -6,7 +6,8 @@ import { Alert } from 'react-native';
 
 const fetchData = async (endpoint: string) => {
   try {
-    const endpoint_local = "192.168.100.7"
+    const endpoint_local = "localhost:3000"
+    console.log(`http://${endpoint_local}/${endpoint}`)
     const response = await fetch(`http://${endpoint_local}/${endpoint}`);
     if (!response.ok) throw new Error(`Error al obtener datos de ${endpoint}`);
     return await response.json();
@@ -25,7 +26,7 @@ export default function HomeScreen() {
   });
   const [ventasFormData, setVentasFormData] = useState({ fecha: '' });
   const [mueblesFormData, setMueblesFormData] = useState({ sucursal: '' });
-  const [ventaDelDia, setVentaDelDia] = useState<{ VENTAS_DEL_DIA : string, CANTIDAD_TOTAL_VENTA: string }[]>([]);
+  const [ventaDelDia, setVentaDelDia] = useState<{ VENTAS_DEL_DIA : string, CANTIDAD_TOTAL_VENTA: string, RECAUDADO:string }[]>([]);
   const [inventarioTotal, setInventarioTotal] = useState<{ Total_Productos : string, Valor_Total: string }[]>([]);
 
 
@@ -105,6 +106,10 @@ export default function HomeScreen() {
               <Text className='text-gray-300 text-lg mr-1'>Productos Vendidos:</Text>
               <Text className='text-white font-semibold text-lg'> {ventaDelDia[0]?.CANTIDAD_TOTAL_VENTA ? `${ventaDelDia[0]?.CANTIDAD_TOTAL_VENTA}`  : 'Cargando...'}  </Text>
             </View>
+            <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Total Recaudado:</Text>
+              <Text className='text-white font-semibold text-lg'> {ventaDelDia[0]?.RECAUDADO ? `$${ventaDelDia[0]?.RECAUDADO}`  : 'Cargando...'}  </Text>
+            </View>
           </View>
         </View>
 
@@ -173,7 +178,7 @@ export default function HomeScreen() {
         <Pressable onPress={async () => {
           try {
             // Obtener datos de clientes en crédito
-            const response = await fetch('http://192.168.100.7/clientecredito'); // Asegúrate de que este endpoint existe
+            const response = await fetch('http://localhost/clientecredito'); // Asegúrate de que este endpoint existe
             const datosAPI = await response.json();
             console.log(datosAPI);
             // Formateamos los datos
@@ -381,7 +386,7 @@ export default function HomeScreen() {
                       const datosAPI = await fetchData(queryString);
                       console.log(datosAPI);
                       // Formateamos los datos
-                      const datosReporte = {
+                      const datosReporte = { 
                         sucursal: mueblesFormData.sucursal,
                         fecha: new Date().toISOString().split('T')[0],
                         muebles: datosAPI.map((reporte: { NOMBRE: string; PRECIO: number; DESCRIPCION: string; }) => ({
