@@ -50,6 +50,8 @@ interface MueblesReporte {
 
 export const generarReporteCompras = async (data: ReporteCompras) => {
   try {
+    const mes = Number(data.fecha.split('/', 1));
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     const html = `
       <html>
         <head>
@@ -112,7 +114,7 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
             <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Inventario</h2>
-            <h3>Compras en el mes de noviembre a día de ${data.fecha}</h3>
+            <h3>Compras en el mes de ${meses[mes]} a día de ${data.fecha}</h3>
           </div>
 
           <table>
@@ -140,7 +142,7 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
             </tbody>
           </table>
 
-          <p>Los muebles en este documento son los muebles comprados a distribuidoras en el mes ${data.fecha.split('/', 1)}.</p>
+          <p>Los muebles en este documento son los muebles comprados a distribuidoras en el mes de ${meses[mes]}.</p>
 
           <div class="confidential">
             Documento Propiedad de Muebleria Don Salinas de Gortari Machu Picchu. Confidencial.
@@ -166,6 +168,9 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
 
 export const generarReporteVentas = async (data: VentasReporte) => {
   try {
+    const mes = Number(data.fecha.split('/', 1));
+   
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
     const html = `
       <html>
         <head>
@@ -228,7 +233,7 @@ export const generarReporteVentas = async (data: VentasReporte) => {
             <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Ventas</h2>
-            <h3>Ventas en el mes de noviembre a día de ${data.fecha}</h3>
+            <h3>Ventas en el mes de ${meses[mes]}</h3>
           </div>
 
           <table>
@@ -256,7 +261,7 @@ export const generarReporteVentas = async (data: VentasReporte) => {
             </tbody>
           </table>
 
-          <p>Las personas en este documento compraron en Muebleria Machu Picchu Don Salinas de Gortari en el mes de noviembre.</p>
+          <p>Las personas en este documento compraron en Muebleria Machu Picchu Don Salinas de Gortari en el mes de ${meses[mes]} .</p>
 
           <div class="confidential">
             Documento Propiedad de Muebleria Don Salinas de Gortari Machu Picchu. Confidencial.
