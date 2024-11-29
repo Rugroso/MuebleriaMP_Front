@@ -62,6 +62,9 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
               margin-bottom: 40px;
             }
             .logo {
+              position: absolute;
+              top: 20;
+              left: 220;
               width: 150px;
               height: 150px;
               margin-bottom: 20px;
@@ -170,6 +173,9 @@ export const generarReporteVentas = async (data: VentasReporte) => {
               margin-bottom: 40px;
             }
             .logo {
+              position: absolute;
+              top: 20;
+              left: 220;
               width: 150px;
               height: 150px;
               margin-bottom: 20px;
@@ -272,6 +278,9 @@ export const generarReporteMuebles = async (data: MueblesReporte) => {
               margin-bottom: 40px;
             }
             .logo {
+              position: absolute;
+              top: 20;
+              left: 220;
               width: 150px;
               height: 150px;
               margin-bottom: 20px;
@@ -371,6 +380,9 @@ export const generarReporteCredito = async (data: CreditoReporte) => {
               margin-bottom: 40px;
             }
             .logo {
+              position: absolute;
+              top: 20;
+              left: 220;
               width: 150px;
               height: 150px;
               margin-bottom: 20px;
