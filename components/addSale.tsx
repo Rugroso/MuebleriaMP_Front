@@ -18,19 +18,29 @@ interface addSaleProps {
   establecimientoID: number;
 }
 
+interface FurnitureOption {
+  label: string;
+  value: string;
+  price: number;
+}
+
 const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID }) => {
   const [clientID, setClientID] = useState('');
   const [quantity, setQuantity] = useState('');
   const [open, setOpen] = useState(false);
+  const [openClientes, setOpenClientes] = useState(false);
   const [openMetodo, setOpenMetodo] = useState(false);
   const [selectedMetodoPago, setSelectedMetodoPago] = useState<string | null>(null);
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [installments, setInstallments] = useState('');
   const [initialPayment, setInitialPayment] = useState('');
-
-  const [furnitureOptions, setFurnitureOptions] = useState([
-    { label: 'Silla', value: 'Silla' },
+  const [unitPrice, setUnitPrice] = useState(0)
+  const [total, setTotal] = useState(0)
+  const [clientesOptions, setClientesOptions] = useState([
+    { label: 'Abraham Saldivar', value: '1' },
   ]);
+
+  const [furnitureOptions, setFurnitureOptions] = useState<FurnitureOption[]>([]);
 
   const [metodoPagoOptions, setMetodoPagoOptions] = useState([
     { label: 'Contado', value: 'Contado' },
@@ -43,9 +53,12 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
       if (response.ok) {
         const muebles = await response.json();
         if (Array.isArray(muebles)) {
-          const furnitureOptions = muebles.map((event) => ({
+          const filteredMuebles = muebles.filter((event) => event.Cantidad > 0);
+          const furnitureOptions = filteredMuebles.map((event) => ({
             label: event.Nombre,
-            value: event.MuebleID, 
+            value: event.MuebleID,
+            price: event.Precio,
+            cantidad: event.Cantidad
           }));
           setFurnitureOptions(furnitureOptions);
           console.log('Furniture Options:', furnitureOptions);
@@ -55,11 +68,60 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
       console.error('Error al obtener los muebles:', e);
     }
   };
+
+  const getClientes = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/clientes?orderBy=Nombre&ascDesc=ASC`);
+      if (response.ok) {
+        const clientes = await response.json();
+        if (Array.isArray(clientes)) {
+          const clientesOptions = clientes.map((cliente) => ({
+            label: `${cliente.Nombre} - ID: ${cliente.ClienteID}` ,
+            value: cliente.ClienteID,
+          }));
+          setClientesOptions(clientesOptions);
+        }
+      }
+    } catch (e) {
+      console.error('Error al obtener los clientes:', e);
+    }
+  };
   
+  useEffect(() => {
+    getClientes();
+    const intervalId = setInterval(getClientes, 1000);
+    return () => clearInterval(intervalId);
+  }, [establecimientoID]);
   
-  useEffect(()=> {
+  useEffect(() => {
     getMuebles();
-  },[establecimientoID])
+    const intervalId = setInterval(getMuebles, 1000);
+    return () => clearInterval(intervalId);
+  }, [establecimientoID]);
+
+  useEffect(() => {
+    if (selectedFurniture) {
+      const selectedOption = furnitureOptions.find(
+        (item) => item.value === selectedFurniture
+      );
+      setUnitPrice(selectedOption?.price || 0);
+    } else {
+      setUnitPrice(0);
+    }
+  }, [selectedFurniture]);
+
+  useEffect(() => {
+    if (quantity && unitPrice) {
+      const parsedQuantity = parseInt(quantity, 10);
+      if (!isNaN(parsedQuantity)) {
+        setTotal(parsedQuantity * unitPrice);
+      } else {
+        setTotal(0);
+      }
+    } else {
+      setTotal(0);
+    }
+  }, [quantity, unitPrice]);
 
   const handleSubmit = async () => {
     if (!clientID || !quantity || !selectedFurniture || !selectedMetodoPago) {
@@ -155,15 +217,41 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
               Llena el formulario para añadir una compra
             </Text>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>ID Cliente</Text>
-              <TextInput
-                style={styles.input}
+            <View style={{ zIndex: 3, marginBottom: 16 }}>
+              <Text style={styles.label}>Cliente</Text>
+              <DropDownPicker
+                open={openClientes}
                 value={clientID}
-                onChangeText={setClientID}
-                placeholder="Ej: 10"
-                placeholderTextColor="#666"
-                keyboardType="numeric"
+                items={clientesOptions}
+                setOpen={setOpenClientes}
+                setValue={setClientID}
+                setItems={setClientesOptions}
+                placeholder="Selecciona un cliente"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                textStyle={styles.dropdownText}
+                placeholderStyle={styles.dropdownPlaceholder}
+                listMode="MODAL" 
+                searchable={true}
+                searchPlaceholder="Buscar cliente..."
+                searchTextInputStyle={{
+                  color: 'white',
+                }}
+                modalProps={{
+                  animationType: 'fade',
+                }}
+                modalTitle="Selecciona un cliente"
+                modalContentContainerStyle={{
+                  backgroundColor: '#1c1c1e',
+                  padding: 16,
+                  borderRadius: 8,
+                }}
+                modalTitleStyle={{
+                  fontSize: 20,
+                  fontWeight: '600',
+                  color: 'white',
+                  marginBottom: 16,
+                }}
               />
             </View>
 
@@ -249,6 +337,12 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
               <Text style={styles.submitButtonText}>VENDER</Text>
             </TouchableOpacity>
           </ScrollView>
+          <View style={{ marginTop: 12, flexDirection: 'row' }}>
+              <Text className='mt-2 mb-2 text-xl text-white'>Total a Pagar</Text>
+                <Text style={styles.total}>
+                  {total !== null ? `$${total.toFixed(2)}` : 'Introduce una cantidad'}
+                </Text>
+            </View>
         </View>
       </View>
     </Modal>
@@ -328,5 +422,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+  },
+  total: {
+    fontSize: 18,
+    color: 'white',
+    backgroundColor: '#2c2c2e',
+    padding: 8,
+    borderRadius: 8,
+    textAlign: 'center',
+    borderWidth: 1,
+    marginLeft:11,
+    borderColor: '#3a3a3c',
   },
 });
