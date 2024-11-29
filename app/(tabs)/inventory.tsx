@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import React from 'react';
 import MenuItems from '@/components/MenuItems';
 
@@ -8,6 +8,7 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState('');
   const [inventario, setInventario] = React.useState<{ Cantidad: number, Nombre: string, Precio: number } []>([]);
   const [ultimoInventario, setUltimoInventario] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number } []>([]);
   const [ultimoInventarioAvailable, setUltimoInventarioAvailable] = React.useState(false);
@@ -15,8 +16,22 @@ export default function HomeScreen() {
   const [orderBy, setOrderBy] = React.useState('clienteID');
   const [ascDesc, setascDesc] = React.useState('ASC');
   const [inventarioAvailable, setinventarioAvailable] = React.useState(false);
-
   const [selectedSucursal, setSelectedSucursal] = React.useState('CDMX');
+
+  const filteredInventario = React.useMemo(() => {
+    if (!searchQuery) return inventario;
+    
+    const query = searchQuery.toLowerCase();
+    return inventario.filter(item => {
+      const nombre = item.Nombre?.toLowerCase() || '';
+      const precio = item.Precio?.toString() || '';
+      const cantidad = item.Cantidad?.toString() || '';
+
+      return nombre.includes(query) ||
+             precio.includes(query) ||
+             cantidad.includes(query);
+    });
+  }, [inventario, searchQuery]);
 
   const fetchInventario = async () => {
     try{
@@ -78,15 +93,15 @@ export default function HomeScreen() {
     return () => clearInterval(intervalId);
   }, [establecimiento]);
 
-React.useEffect(() => {
-  fetchInventario();
-  const intervalId = setInterval(fetchInventario, 1000);
-  return () => clearInterval(intervalId);
-}, [establecimiento, orderBy, ascDesc]);
+  React.useEffect(() => {
+    fetchInventario();
+    const intervalId = setInterval(fetchInventario, 1000);
+    return () => clearInterval(intervalId);
+  }, [establecimiento, orderBy, ascDesc]);
 
-React.useEffect(() => {
-  fetchInventario()
-}, [orderBy, ascDesc]);
+  React.useEffect(() => {
+    fetchInventario()
+  }, [orderBy, ascDesc]);
 
   const handleSelectionChange = (value:any, topic:string) => {
     if (topic==='Seleccionar una Sucursal') {
@@ -131,33 +146,32 @@ React.useEffect(() => {
         setSelectedSucursal('San Francisco')
       }
     }
-      if (topic==='Seleccionar una forma de Ordenar | Inventario') {
-        if(value==='Nombre - A-Z') {
-          setOrderBy('Nombre');
-          setascDesc('ASC');
-        }
-        else if(value==='Nombre - Z-A') {
-          setOrderBy('Nombre');
-          setascDesc('DESC');
-        }
-        else if(value==='Precio - Menor a Mayor') {
-          setOrderBy('Precio');
-          setascDesc('ASC');
-        }
-        else if(value==='Precio - Mayor a Menor') {
-          setOrderBy('Precio');
-          setascDesc('DESC');
-        }
-        else if(value==='Cantidad - Menor a Mayor') {
-          setOrderBy('Cantidad');
-          setascDesc('ASC');
-        }
-        else if(value==='Cantidad - Mayor a Menor') {
-          setOrderBy('Cantidad');
-          setascDesc('DESC');
-        }
+    if (topic==='Seleccionar una forma de Ordenar | Inventario') {
+      if(value==='Nombre - A-Z') {
+        setOrderBy('Nombre');
+        setascDesc('ASC');
       }
-
+      else if(value==='Nombre - Z-A') {
+        setOrderBy('Nombre');
+        setascDesc('DESC');
+      }
+      else if(value==='Precio - Menor a Mayor') {
+        setOrderBy('Precio');
+        setascDesc('ASC');
+      }
+      else if(value==='Precio - Mayor a Menor') {
+        setOrderBy('Precio');
+        setascDesc('DESC');
+      }
+      else if(value==='Cantidad - Menor a Mayor') {
+        setOrderBy('Cantidad');
+        setascDesc('ASC');
+      }
+      else if(value==='Cantidad - Mayor a Menor') {
+        setOrderBy('Cantidad');
+        setascDesc('DESC');
+      }
+    }
     setIsOpen(false);
   };
 
@@ -207,20 +221,37 @@ React.useEffect(() => {
         </View>
 
         <View className='bg-stone-800 p-4 rounded-lg mb-10 shadow-lg'>
-          <View className='flex flex-row'>
-            <Text className='text-xl font-semibold text-white mb-2'>
-              Ordenar por
-            </Text>
-            <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar | Inventario', 'ordenar')}>
-              <View className='bg-slate-500 rounded-full p-2 -mt-1 ml-2 mb-4 shadow-md'>
-                <MaterialIcons name="sort" size={18} color="white" />
-              </View>
-            </TouchableOpacity>
+          <View className='flex flex-row justify-between items-center mb-4'>
+            <View className='flex flex-row items-center'>
+              <Text className='text-xl font-semibold text-white'>
+                Ordenar por
+              </Text>
+              <TouchableOpacity onPress={() => handleTouchable('Seleccionar una forma de Ordenar | Inventario', 'ordenar')}>
+                <View className='bg-slate-500 rounded-full p-2 ml-2 shadow-md'>
+                  <MaterialIcons name="sort" size={18} color="white" />
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
+
+          {/* Barra de búsqueda */}
+          <View className='mb-4'>
+            <View className='bg-stone-900 rounded-lg flex-row items-center px-3 py-2'>
+              <MaterialIcons name="search" size={24} color="white" className="mr-2" />
+              <TextInput
+                placeholder="Buscar en inventario..."
+                placeholderTextColor="#9CA3AF"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                className='flex-1 text-white ml-2'
+              />
+            </View>
+          </View>
+
           <ScrollView className={`${inventarioAvailable ? 'h-[30rem]' : 'h-12'} bg-stone-900 p-4 rounded-2xl`}>
           {inventarioAvailable ?
           <View>
-          {inventario.map((data, key) => {
+          {filteredInventario.map((data, key) => {
             return (
               <View key={key} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-md'>
                 <View className='w-[9%]'>
@@ -251,7 +282,7 @@ React.useEffect(() => {
           </ScrollView>
         </View>
       </ScrollView>
-      <MenuItems  onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
+      <MenuItems onSelectionChange={handleSelectionChange} isOpen={isOpen} setIsOpen={setIsOpen} topic={topic} />
     </View>
   );
 }
