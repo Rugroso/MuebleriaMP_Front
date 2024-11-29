@@ -22,11 +22,15 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
   const [clientID, setClientID] = useState('');
   const [quantity, setQuantity] = useState('');
   const [open, setOpen] = useState(false);
+  const [openClientes, setOpenClientes] = useState(false);
   const [openMetodo, setOpenMetodo] = useState(false);
   const [selectedMetodoPago, setSelectedMetodoPago] = useState<string | null>(null);
   const [selectedFurniture, setSelectedFurniture] = useState<string | null>(null);
   const [installments, setInstallments] = useState('');
   const [initialPayment, setInitialPayment] = useState('');
+  const [clientesOptions, setClientesOptions] = useState([
+    { label: 'Abraham Saldivar', value: '1' },
+  ]);
 
   const [furnitureOptions, setFurnitureOptions] = useState([
     { label: 'Silla', value: 'Silla' },
@@ -55,11 +59,36 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
       console.error('Error al obtener los muebles:', e);
     }
   };
+
+  const getClientes = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/clientes?orderBy=Nombre&ascDesc=ASC`);
+      if (response.ok) {
+        const clientes = await response.json();
+        if (Array.isArray(clientes)) {
+          const clientesOptions = clientes.map((cliente) => ({
+            label: `${cliente.Nombre} - ID: ${cliente.ClienteID}` ,
+            value: cliente.ClienteID,
+          }));
+          setClientesOptions(clientesOptions);
+        }
+      }
+    } catch (e) {
+      console.error('Error al obtener los clientes:', e);
+    }
+  };
   
+  useEffect(() => {
+    getClientes();
+    const intervalId = setInterval(getClientes, 1000);
+    return () => clearInterval(intervalId);
+  }, [establecimientoID]);
   
-  useEffect(()=> {
+  useEffect(() => {
     getMuebles();
-  },[establecimientoID])
+    const intervalId = setInterval(getMuebles, 1000);
+    return () => clearInterval(intervalId);
+  }, [establecimientoID]);
 
   const handleSubmit = async () => {
     if (!clientID || !quantity || !selectedFurniture || !selectedMetodoPago) {
@@ -155,15 +184,41 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
               Llena el formulario para añadir una compra
             </Text>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>ID Cliente</Text>
-              <TextInput
-                style={styles.input}
+            <View style={{ zIndex: 3, marginBottom: 16 }}>
+              <Text style={styles.label}>Cliente</Text>
+              <DropDownPicker
+                open={openClientes}
                 value={clientID}
-                onChangeText={setClientID}
-                placeholder="Ej: 10"
-                placeholderTextColor="#666"
-                keyboardType="numeric"
+                items={clientesOptions}
+                setOpen={setOpenClientes}
+                setValue={setClientID}
+                setItems={setClientesOptions}
+                placeholder="Selecciona un cliente"
+                style={styles.dropdown}
+                dropDownContainerStyle={styles.dropdownContainer}
+                textStyle={styles.dropdownText}
+                placeholderStyle={styles.dropdownPlaceholder}
+                listMode="MODAL" // Habilitar vista en modal
+                searchable={true} // Habilitar búsqueda
+                searchPlaceholder="Buscar cliente..."
+                searchTextInputStyle={{
+                  color: 'white', // Texto blanco en el campo de búsqueda
+                }}
+                modalProps={{
+                  animationType: 'fade',
+                }}
+                modalTitle="Selecciona un cliente"
+                modalContentContainerStyle={{
+                  backgroundColor: '#1c1c1e',
+                  padding: 16,
+                  borderRadius: 8,
+                }}
+                modalTitleStyle={{
+                  fontSize: 20,
+                  fontWeight: '600',
+                  color: 'white',
+                  marginBottom: 16,
+                }}
               />
             </View>
 

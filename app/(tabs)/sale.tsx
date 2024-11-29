@@ -2,6 +2,10 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
 import MenuItems from '@/components/MenuItems';
 import AddSale from '@/components/addSale';
+import dayjs, { Dayjs } from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
@@ -13,8 +17,8 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Date, Venta_Total:number;}[]>([]);
-  const [ultimaVenta, setUltimaVenta] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Date, Venta_Total:number;}[]>([]);
+  const [ventas, setVentas] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Dayjs, Venta_Total:number;}[]>([]);
+  const [ultimaVenta, setUltimaVenta] = React.useState<{ Cantidad: number, Nombre_Mueble: string, Precio: number, Nombre_Cliente: string, FechaVenta: Dayjs, Venta_Total:number;}[]>([]);
   const [ventasAvailable, setVentasAvailable] = React.useState(false);
   const [ultimaVentaAvailable, setUltimaVentaAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(1);
@@ -32,7 +36,7 @@ export default function HomeScreen() {
       if (Array.isArray(data)) {
         const ventas = data.map((event) => ({
           ...event,
-          FechaVenta: new Date(event.FechaVenta),
+          FechaVenta: dayjs.utc(event.FechaVenta),
           Venta_Total: event.Venta_Total
         }));
         setVentas(ventas);
@@ -57,7 +61,7 @@ export default function HomeScreen() {
       if (Array.isArray(data)) {
         const ventas = data.map((event) => ({
           ...event,
-          FechaVenta: new Date(event.FechaVenta),
+          FechaVenta: dayjs.utc(event.FechaVenta),
           Venta_Total: event.Venta_Total
         }));
         setUltimaVenta(ventas);
@@ -212,7 +216,7 @@ export default function HomeScreen() {
                 </View>
                 <View className='flex flex-row'>
                   <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
-                  <Text className='text-white font-semibold text-lg'>{ultimaVenta.at(-1)?.FechaVenta.toLocaleDateString()}</Text>
+                  <Text className='text-white font-semibold text-lg'>{ultimaVenta.at(-1)?.FechaVenta.format('DD/MM/YYYY HH:mm')}</Text>
                 </View>
               </>
             ) : (
@@ -275,7 +279,7 @@ export default function HomeScreen() {
                         </View>
                         <View className='flex flex-row'>
                           <Text className='text-gray-300 mr-1'>Fecha:</Text>
-                          <Text className='text-white font-semibold'>{data.FechaVenta.toLocaleDateString()}</Text>
+                          <Text className='text-white font-semibold'>{data.FechaVenta.format('DD/MM/YYYY HH:mm')}</Text>
                         </View>
                         </View>
                       </View>

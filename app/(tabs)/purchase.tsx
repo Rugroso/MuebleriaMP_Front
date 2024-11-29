@@ -1,7 +1,10 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import MenuItems from '@/components/MenuItems';
 import AddBuy from '@/components/AddBuy';
+dayjs.extend(utc);
 
 
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
@@ -13,8 +16,8 @@ export default function HomeScreen() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [addOpen, setAddOpen] = React.useState(false);
   const [topic, setTopic] = React.useState('');
-  const [compras, setCompras] = React.useState<{ Cantidad : number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Date, Compra_Total:number }[]>([]);
-  const [ultimaCompra, setUltimaCompra] = React.useState<{ Cantidad : number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Date, Compra_Total:number }[]>([]);
+  const [compras, setCompras] = React.useState<{ Cantidad : number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Dayjs, Compra_Total:number }[]>([]);
+  const [ultimaCompra, setUltimaCompra] = React.useState<{ Cantidad : number, Nombre_Mueble: string, Precio: number, Nombre_Distribuidor: string, FechaCompra: Dayjs, Compra_Total:number }[]>([]);
   const [ultimaCompraAvailable, setUltimaCompraAvailable] = React.useState(false);
   const [establecimiento, setEstablecimiento] = React.useState(1);
   const [comprasAvailable, setComprasAvailable] = React.useState(false);
@@ -34,7 +37,7 @@ export default function HomeScreen() {
           Nombre_Mueble: event.Nombre_Mueble,
           Precio: event.Precio,
           Nombre_Distribuidor: event.Distribuidor,
-          FechaCompra: new Date(event.FechaCompra),
+          FechaCompra: dayjs.utc(event.FechaCompra),
           Compra_Total: event.Compra_Total
         }));
         setCompras(compras);
@@ -58,7 +61,7 @@ export default function HomeScreen() {
           Nombre_Mueble: event.Nombre_Mueble,
           Precio: event.Precio,
           Nombre_Distribuidor: event.Distribuidor,
-          FechaCompra: new Date(event.FechaCompra),
+          FechaCompra: dayjs.utc(event.FechaCompra),
           Compra_Total: event.Compra_Total
         }));
         setUltimaCompra(compras);
@@ -209,7 +212,7 @@ export default function HomeScreen() {
             </View>
             <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Fecha:</Text>
-              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.FechaCompra?.toLocaleDateString() ? ultimaCompra.at(-1)?.FechaCompra?.toLocaleDateString() : 'Cargando...'}</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.FechaCompra?.format('DD/MM/YYYY HH:mm') ? ultimaCompra.at(-1)?.FechaCompra?.format('DD/MM/YYYY HH:mm') : 'Cargando...'}</Text>
             </View>
           </View>
         </View>
@@ -230,7 +233,7 @@ export default function HomeScreen() {
             <View>
               {compras.map((data, index) => {
                 return (
-                  <View key={`${data.Nombre_Mueble}-${data.FechaCompra.getTime()}-${index}`} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
+                  <View key={index} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-lg'>
                   <View className='w-[9%]'>
                     <MaterialIcons name="chair" size={32} color="white" />
                   </View>
@@ -247,7 +250,7 @@ export default function HomeScreen() {
                       </View>
                       <View className='flex flex-row'>
                         <Text className='text-gray-300 mr-1'>Fecha:</Text>
-                        <Text className='text-white font-semibold'>{new Date(data.FechaCompra).toLocaleDateString()}</Text>
+                        <Text className='text-white font-semibold'>{data.FechaCompra.format('DD/MM/YYYY HH:mm')}</Text>
                       </View>
                     </View>
                   </View>
