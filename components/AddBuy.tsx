@@ -18,6 +18,12 @@ interface MenuItemsProps {
   establecimientoID: number;
 }
 
+interface FurnitureOption {
+  label: string;
+  value: string;
+  price: number;
+}
+
 const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID }) => {
   const [open, setOpen] = useState(false);
   const [openDistribuidor, setOpenDistribuidor] = useState(false);
@@ -25,9 +31,9 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
   const [pais, setPais] = useState('')
   const [selectedDistribuidor, setSelectedDistribuidor] = useState<string | null>(null);
   const [quantity, setQuantity] = useState('');
-  const [furnitureOptions, setFurnitureOptions] = useState([
-    { label: 'Silla', value: 'Silla' },
-  ]);
+  const [unitPrice, setUnitPrice] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [furnitureOptions, setFurnitureOptions] = useState<FurnitureOption[]>([]);
   const [distribuidorOptions, setDistribuidorOptions] = useState([
     { label: 'Intuitive', value: 'Intuitive' },
   ]);
@@ -47,7 +53,8 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
         if (Array.isArray(muebles)) {
           const options = muebles.map((mueble) => ({
             label: mueble.Nombre,
-            value: mueble.MuebleID
+            value: mueble.MuebleID,
+            price: mueble.Precio
           }));
           setFurnitureOptions(options);
         }
@@ -135,6 +142,30 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
       setDistribuidorOptions(sucursalesUSA)
     }
   },[pais])
+
+  useEffect(() => {
+    if (quantity && unitPrice) {
+      const parsedQuantity = parseInt(quantity, 10);
+      if (!isNaN(parsedQuantity)) {
+        setTotal(parsedQuantity * unitPrice);
+      } else {
+        setTotal(0);
+      }
+    } else {
+      setTotal(0);
+    }
+  }, [quantity, unitPrice]);
+
+  useEffect(() => {
+    if (selectedFurniture) {
+      const selectedOption = furnitureOptions.find(
+        (item) => item.value === selectedFurniture
+      );
+      setUnitPrice(selectedOption?.price || 0);
+    } else {
+      setUnitPrice(0);
+    }
+  }, [selectedFurniture]);
 
   const handleSubmit = async () => {
     if (!selectedFurniture || !selectedDistribuidor || !quantity) {
@@ -255,6 +286,12 @@ const AddBuy: React.FC<MenuItemsProps> = ({ isOpen, setIsOpen, establecimientoID
               <Text style={styles.submitButtonText}>COMPRAR</Text>
             </TouchableOpacity>
           </ScrollView>
+          <View style={{ marginTop: 12, flexDirection: 'row' }}>
+            <Text className='mt-2 mb-2 text-xl text-white'>Total a Pagar</Text>
+              <Text style={styles.total}>
+                {total !== null ? `$${total.toFixed(2)}` : 'Introduce una cantidad'}
+              </Text>
+          </View>
         </View>
       </View>
     </Modal>
@@ -335,5 +372,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: 'white',
+  },
+  total: {
+    fontSize: 18,
+    color: 'white',
+    backgroundColor: '#2c2c2e',
+    padding: 8,
+    borderRadius: 8,
+    textAlign: 'center',
+    borderWidth: 1,
+    marginLeft:11,
+    borderColor: '#3a3a3c',
   },
 });

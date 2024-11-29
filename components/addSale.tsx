@@ -128,6 +128,11 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
       Alert.alert('Error', 'Por favor, llena todos los campos.');
       return;
     }
+    let pagoInicial = parseInt(initialPayment, 10)
+    if (pagoInicial>=total) {
+      Alert.alert('Error', 'El pago Inicial debe ser menor al pago total');
+      return;
+    }
     
 
   
@@ -338,11 +343,11 @@ const AddSale: React.FC<addSaleProps> = ({ isOpen, setIsOpen, establecimientoID 
             </TouchableOpacity>
           </ScrollView>
           <View style={{ marginTop: 12, flexDirection: 'row' }}>
-              <Text className='mt-2 mb-2 text-xl text-white'>Total a Pagar</Text>
-                <Text style={styles.total}>
-                  {total !== null ? `$${total.toFixed(2)}` : 'Introduce una cantidad'}
-                </Text>
-            </View>
+            <Text className='mt-2 mb-2 text-xl text-white'>Total a Pagar</Text>
+              <Text style={styles.total}>
+                {total !== null ? `$${total.toFixed(2)}` : 'Introduce una cantidad'}
+              </Text>
+          </View>
         </View>
       </View>
     </Modal>
