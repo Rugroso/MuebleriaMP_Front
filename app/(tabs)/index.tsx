@@ -8,7 +8,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 
 const fetchData = async (endpoint: string) => {
   try {
-    const endpoint_local = "192.168.100.7"
+    const endpoint_local = "localhost:3000"
     console.log(`http://${endpoint_local}/${endpoint}`)
     const response = await fetch(`http://${endpoint_local}/${endpoint}`);
     if (!response.ok) throw new Error(`Error al obtener datos de ${endpoint}`);
@@ -19,11 +19,15 @@ const fetchData = async (endpoint: string) => {
   }
 };
 
-// Define the type for resultados
 type Resultado = {
-  Precio_Mensual: string; // Adjust the type as necessary
-  // Add other properties if needed
+  Precio_Mensual: string;
 };
+
+interface FurnitureOption {
+  key: number;
+  value: string;
+}
+
 
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,25 +46,38 @@ export default function HomeScreen() {
   const [meses, setMeses] = useState("");
   const [resultados, setResultados] = useState<Resultado[]>([]);
   const [mostrarResultados, setMostrarResultados] = useState(false);
+  const [sucursales, setSucursales] = useState([
+    { key: 1, value: 'Sucursal 1' },
+    { key: 2, value: 'Sucursal 2' },
+  ]);
+  const [selectedSucursal, setSelectedSucursal] = useState("");
+  const [furnitureOptions, setFurnitureOptions] = useState<FurnitureOption[]>([]);
 
 
-  const data = [
-    {key:'1', value:'Sofá de Esquina'},
-    {key:'2', value:'Mesa de Comedor'},
-    {key:'3', value:'Silla de Oficina'},
-    {key:'4', value:'Litera Infantil',},
-    {key:'5', value:'Librero Moderno'},
-    {key:'6', value:'Armario de Ropas'},
-    {key:'7', value:'Escritorio Ejecutivo'},
-    {key:'8', value:'Sillón Reclinable'},
-    {key:'9', value:'Tocador con Espejo'},
-    {key:'10', value:'Mueble para TV'},
-  ]
+  const getMuebles = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/muebles');
+      if (response.ok) {
+        const muebles = await response.json();
+        if (Array.isArray(muebles)) {
+          const options = muebles.map((mueble) => ({
+            key: mueble.MuebleID,
+            value: mueble.Nombre,
+          }));
+          setFurnitureOptions(options);
+        }
+      } else {
+        console.error('Error al obtener los muebles');
+      }
+    } catch (error) {
+      console.error('Error al obtener los muebles:', error);
+    }
+  };
 
 
   const fetchViewVentaDia = async () => {
     try {
-      const response = await fetch(`http://192.168.100.7/ventadeldia`);
+      const response = await fetch(`http://localhost:3000/ventadeldia`);
       if (!response.ok) throw new Error(`Error al obtener datos de la venta del dia`);
       const data = await response.json();
       if(Array.isArray(data)) {
@@ -74,10 +91,32 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchSucursales = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/sucursales');
+      if (!response.ok) throw new Error('Error al obtener sucursales');
+      const data = await response.json();
+      const formattedData = data.map((sucursal: { EstablecimientoID: string, Ciudad: string }) => ({
+        key: sucursal.EstablecimientoID,
+        value: `${sucursal.Ciudad} - ID: ${sucursal.EstablecimientoID}`
+      }));
+      setSucursales(formattedData);
+    } catch (error) {
+      console.error('Error:', error);
+      setSucursales([]);
+    }
+  };
+
+  useEffect(() => {
+    if (mueblesModalVisible) {
+      fetchSucursales();
+    }
+  }, [mueblesModalVisible]);
+
 
   const fetchInventarioTotal = async () => {
     try {
-      const response = await fetch(`http://http://192.168.100.7/inventariototal`);
+      const response = await fetch(`http://localhost:3000/inventariototal`);
       if (!response.ok) throw new Error(`Error al obtener datos de la venta del dia`);
       const data = await response.json();
       if(Array.isArray(data)) {
@@ -102,6 +141,10 @@ export default function HomeScreen() {
     const intervalId = setInterval(fetchInventarioTotal, 1000);
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    getMuebles();
+  }, []);
   
 
   return (
@@ -114,7 +157,7 @@ export default function HomeScreen() {
             className="absolute left-6 bottom-3"
           />
           <Text className="text-2xl font-semibold text-white mt-14">
-            ¡Hola, Gibran!
+            ¡Hola, Abraham!
           </Text>
         </View>
       <ScrollView className='p-5 flex-1 w-full'>
@@ -157,7 +200,7 @@ export default function HomeScreen() {
         </View>
         <View className="my-4 border-t border-gray-600" />
         <Text className='text-2xl font-semibold text-white mb-5 text-start'>
-          Calculadora de intereses
+          Calculadora de Intereses
         </Text>
 
 
@@ -227,7 +270,7 @@ export default function HomeScreen() {
         <Pressable onPress={async () => {
           try {
             // Obtener datos de clientes en crédito
-            const endpointlocal = "http://192.168.100.7"
+            const endpointlocal = "http://localhost:3000"
             const response = await fetch(`${endpointlocal}/clientecredito`); // Asegúrate de que este endpoint existe
             const datosAPI = await response.json();
             console.log(datosAPI);
@@ -292,7 +335,9 @@ export default function HomeScreen() {
                       }
                       setShowDatePicker(true);
                     }}
+                    themeVariant="dark"
                   />
+
                   <View className='flex-row justify-between w-full mt-4'>
                     <Pressable
                       className='bg-blue-500 px-4 py-2 rounded-lg'
@@ -377,8 +422,8 @@ export default function HomeScreen() {
                       if (event.type === 'set' && date) {
                         setSelectedDateVentas(date);
                       }
-
                     }}
+                    themeVariant="dark"  // Añadimos esta línea
                   />
                   <View className='flex-row justify-between w-full mt-4'>
                     <Pressable
@@ -449,14 +494,18 @@ export default function HomeScreen() {
           <View className='flex-1 justify-center items-center bg-black/50'>
             <View className='bg-stone-900 p-6 rounded-lg w-[90%]'>
               <Text className='text-xl font-bold mb-4 text-white'>Reporte de Muebles Faltantes</Text>
-              <TextInput
-                className='border border-stone-700 p-2 rounded-lg mb-4'
-                placeholder="Número del establecimiento"
-                placeholderTextColor={'gray'}
-                value={mueblesFormData.sucursal}
-                onChangeText={(text) => setMueblesFormData({...mueblesFormData, sucursal: text})}
+              <Text className='text-lg text-white mb-1'>Selecciona una sucursal</Text>
+              <SelectList 
+                setSelected={(val: string) => setSelectedSucursal(val)}
+                data={sucursales}
+                save="key"
+                boxStyles={{ backgroundColor: '#1f2937' }}
+                dropdownStyles={{ backgroundColor: '#1f2937' }}
+                dropdownTextStyles={{color: 'white'}}
+                placeholder='Selecciona una sucursal'
+                inputStyles={{color: 'white'}}
               />
-              <View className='flex-row justify-center space-x-4 w-full'>
+              <View className='flex-row justify-center space-x-4 w-full mt-4'>
                 <Pressable
                   className='bg-red-500 px-4 py-2 rounded-lg mr-3'
                   onPress={() => setMueblesModalVisible(false)}
@@ -467,13 +516,17 @@ export default function HomeScreen() {
                   className='bg-blue-500 px-4 py-2 rounded-lg'
                   onPress={async () => {
                     try {
+                      if (!selectedSucursal) {
+                        Alert.alert('Error', 'Por favor selecciona una sucursal');
+                        return;
+                      }
                       // Obtener datos de muebles faltantes
-                      const queryString = `mueblefaltante?id=${mueblesFormData.sucursal}`;
+                      const queryString = `mueblefaltante?id=${selectedSucursal}`;
                       const datosAPI = await fetchData(queryString);
                       console.log(datosAPI);
                       // Formateamos los datos
                       const datosReporte = { 
-                        sucursal: mueblesFormData.sucursal,
+                        sucursal: selectedSucursal,
                         fecha: new Date().toISOString().split('T')[0],
                         muebles: datosAPI.map((reporte: { NOMBRE: string; PRECIO: number; DESCRIPCION: string; }) => ({
                           nombre: reporte.NOMBRE,
@@ -510,16 +563,19 @@ export default function HomeScreen() {
         >
           <View className='flex-1 justify-center items-center bg-black/50'>
             <View className='bg-stone-900 p-6 rounded-lg w-[90%]'>
-              <Text className='text-xl font-bold mb-2 text-white'>Calculadora de intereses</Text>
+              <Text className='text-xl font-bold mb-2 text-white'>Calculadora de Intereses</Text>
               <Text className='text-lg text-white mb-1'>Mueble</Text>
               <SelectList 
                   setSelected={(val: any) => setSelected(val)} 
-                  data={data} 
+                  data={furnitureOptions} 
                   save="key"
+                  placeholder='Selecciona un Mueble'
                   boxStyles={{ backgroundColor: '#1f2937' }}
                   dropdownStyles={{ backgroundColor: '#1f2937' }}
                   dropdownTextStyles={{color: 'white'}}
                   inputStyles={{color: 'white'}}
+                  searchicon={<FontAwesome name="search" size={12} color={'white'} />} 
+                  search={true}
                 />
               <Text className='text-lg text-white mb-1'>Cantidad</Text>
               <TextInput

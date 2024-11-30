@@ -53,7 +53,7 @@ export default function HomeScreen() {
           Cantidad: event.Cantidad,
           Nombre_Mueble: event.Nombre_Mueble,
           Precio: event.Precio,
-          Nombre_Distribuidor: event.Distribuidor,
+          Nombre_Distribuidor: event.Nombre_Distribuidor,
           FechaCompra: dayjs.utc(event.FechaCompra),
           Compra_Total: event.Compra_Total
         }));
@@ -77,7 +77,7 @@ export default function HomeScreen() {
           Cantidad: event.Cantidad,
           Nombre_Mueble: event.Nombre_Mueble,
           Precio: event.Precio,
-          Nombre_Distribuidor: event.Distribuidor,
+          Nombre_Distribuidor: event.Nombre_Distribuidor,
           FechaCompra: dayjs.utc(event.FechaCompra),
           Compra_Total: event.Compra_Total
         }));
@@ -222,6 +222,10 @@ export default function HomeScreen() {
               <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Cantidad ? ultimaCompra.at(-1)?.Cantidad : 'Cargando...'}</Text>
             </View>
             <View className='flex flex-row'>
+              <Text className='text-gray-300 text-lg mr-1'>Distribuidor:</Text>
+              <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Nombre_Distribuidor ? ultimaCompra.at(-1)?.Nombre_Distribuidor : 'Cargando...'}</Text>
+            </View>
+            <View className='flex flex-row'>
               <Text className='text-gray-300 text-lg mr-1'>Total:</Text>
               <Text className='text-white font-semibold text-lg'>{ultimaCompra.at(-1)?.Compra_Total ? `$${ultimaCompra.at(-1)?.Compra_Total}` : 'Cargando...'}</Text>
             </View>
@@ -277,6 +281,10 @@ export default function HomeScreen() {
                       <View className='flex flex-row'>
                         <Text className='text-gray-300 mr-1'>Cantidad:</Text>
                         <Text className='text-white font-semibold'>{data.Cantidad}</Text>
+                      </View>
+                      <View className='flex flex-row'>
+                        <Text className='text-gray-300 mr-1'>Distribuidor:</Text>
+                        <Text className='text-white font-semibold'>{data.Nombre_Distribuidor}</Text>
                       </View>
                       <View className='flex flex-row'>
                         <Text className='text-gray-300 mr-1'>Fecha:</Text>
