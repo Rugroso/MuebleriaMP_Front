@@ -201,7 +201,7 @@ export default function HomeScreen() {
 
         <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center shadow-lg' >
             <View className='w-[32px]'>
-                <MaterialIcons name="chair" size={32} color="white" />
+                <MaterialIcons name="inventory" size={32} color="white" />
             </View>
           <View className='ml-4 w-[90%]'>
             <Text className='text-xl font-bold text-white'>Último Mueble Añadido a Inventario</Text>
@@ -255,7 +255,7 @@ export default function HomeScreen() {
             return (
               <View key={key} className='bg-slate-600 p-3 m-1 rounded-lg mb-2 flex-row items-center shadow-md'>
                 <View className='w-[9%]'>
-                  <MaterialIcons name="chair" size={32} color="white" />
+                  <MaterialIcons name="inventory" size={32} color="white" />
                 </View>
                 <View>            
                   <View className='ml-4 w-[95%]'>
