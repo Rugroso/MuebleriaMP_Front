@@ -114,7 +114,7 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
             <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Inventario</h2>
-            <h3>Compras en el mes de ${meses[mes]}</h3>
+            <h3>Compras en el mes de ${meses[mes - 1]}</h3>
           </div>
 
           <table>
@@ -142,7 +142,7 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
             </tbody>
           </table>
 
-          <p>Los muebles en este documento son los muebles comprados a distribuidoras en el mes de ${meses[mes]}.</p>
+          <p>Los muebles en este documento son los muebles comprados a distribuidoras en el mes de ${meses[mes - 1]}.</p>
 
           <div class="confidential">
             Documento Propiedad de Muebleria Don Salinas de Gortari Machu Picchu. Confidencial.
@@ -233,7 +233,7 @@ export const generarReporteVentas = async (data: VentasReporte) => {
             <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Ventas</h2>
-            <h3>Ventas en el mes de ${meses[mes]}</h3>
+            <h3>Ventas en el mes de ${meses[mes - 1 ]}</h3>
           </div>
 
           <table>
@@ -261,7 +261,7 @@ export const generarReporteVentas = async (data: VentasReporte) => {
             </tbody>
           </table>
 
-          <p>Las personas en este documento compraron en Muebleria Machu Picchu Don Salinas de Gortari en el mes de ${meses[mes]} .</p>
+          <p>Las personas en este documento compraron en Muebleria Machu Picchu Don Salinas de Gortari en el mes de ${meses[mes - 1]} .</p>
 
           <div class="confidential">
             Documento Propiedad de Muebleria Don Salinas de Gortari Machu Picchu. Confidencial.
