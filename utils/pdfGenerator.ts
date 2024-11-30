@@ -114,7 +114,7 @@ export const generarReporteCompras = async (data: ReporteCompras) => {
             <img class="logo" src="${img}" alt="Logo Muebleria" />
             <h1>Muebleria Machu Picchu Don Salinas de Gortari</h1>
             <h2>Reporte de Inventario</h2>
-            <h3>Compras en el mes de ${meses[mes]} a día de ${data.fecha}</h3>
+            <h3>Compras en el mes de ${meses[mes]}</h3>
           </div>
 
           <table>
