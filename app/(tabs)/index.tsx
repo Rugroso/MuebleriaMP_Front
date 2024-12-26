@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react';
 import { generarReporteCompras, generarReporteVentas, generarReporteMuebles, generarReporteCredito } from '../../utils/pdfGenerator';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SelectList } from 'react-native-dropdown-select-list'
+import { useNavigation } from '@react-navigation/native';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
+
+type DrawerParamList = {
+};
+
+
 
 
 const fetchData = async (endpoint: string) => {
@@ -52,7 +59,11 @@ export default function HomeScreen() {
   ]);
   const [selectedSucursal, setSelectedSucursal] = useState("");
   const [furnitureOptions, setFurnitureOptions] = useState<FurnitureOption[]>([]);
+  const [rol, setRol] = useState<{ usuario:string }[]>([]);
+  const navigation = useNavigation<DrawerNavigationProp<{}>>();
 
+
+  
 
   const getMuebles = async () => {
     try {
@@ -74,6 +85,23 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchRol = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/rol`);
+      if (!response.ok) throw new Error(`Error al obtener el rol del usuario`);
+      const data = await response.json();
+      console.log(data)
+      if (data && typeof data === "object") {
+        const dataUsuario = [{ usuario: data.usuario }];
+        setRol(dataUsuario);
+      } else {
+        console.error("La respuesta no es un objeto válido:", data);
+      }
+    } catch(e) {
+      console.error(e)
+      setRol([]);
+    }
+  };
 
   const fetchViewVentaDia = async () => {
     try {
@@ -112,6 +140,9 @@ export default function HomeScreen() {
       fetchSucursales();
     }
   }, [mueblesModalVisible]);
+  useEffect(() => {
+    console.log(rol)
+  }, [rol]);
 
 
   const fetchInventarioTotal = async () => {
@@ -137,6 +168,13 @@ export default function HomeScreen() {
   }, []);
 
   useEffect(() => {
+    fetchRol();
+    const intervalId = setInterval(fetchRol, 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+  
+
+  useEffect(() => {
     fetchInventarioTotal();
     const intervalId = setInterval(fetchInventarioTotal, 1000);
     return () => clearInterval(intervalId);
@@ -155,9 +193,10 @@ export default function HomeScreen() {
             size={30}
             color="white"
             className="absolute left-6 bottom-3"
+            onPress={() => navigation.openDrawer()} 
           />
           <Text className="text-2xl font-semibold text-white mt-14">
-            ¡Hola, Abraham!
+              {`Hola, ${rol[0]?.usuario}`}
           </Text>
         </View>
       <ScrollView className='p-5 flex-1 w-full'>
