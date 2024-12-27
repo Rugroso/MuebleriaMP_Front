@@ -1,18 +1,12 @@
 import { View, Text, ScrollView, Modal, Pressable, Alert, TextInput } from 'react-native';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
-import { generarReporteCompras, generarReporteVentas, generarReporteMuebles, generarReporteCredito } from '../../utils/pdfGenerator';
+import { generarReporteCompras, generarReporteVentas, generarReporteMuebles, generarReporteCredito } from '../../../utils/pdfGenerator';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
-
-type DrawerParamList = {
-};
-
-
-
-
+import { router, Link} from 'expo-router';
 const fetchData = async (endpoint: string) => {
   try {
     const endpoint_local = "localhost:3000"
@@ -41,7 +35,6 @@ export default function HomeScreen() {
   const [ventasModalVisible, setVentasModalVisible] = useState(false);
   const [mueblesModalVisible, setMueblesModalVisible] = useState(false);
   const [calculadoraModalVisible, setCalculadoraModalVisible] = useState(false);
-  const [mueblesFormData, setMueblesFormData] = useState({ sucursal: '' });
   const [ventaDelDia, setVentaDelDia] = useState<{ VENTAS_DEL_DIA : string, CANTIDAD_TOTAL_VENTA: string, RECAUDADO:string }[]>([]);
   const [inventarioTotal, setInventarioTotal] = useState<{ Total_Productos : string, Valor_Total: string }[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(true);
@@ -60,10 +53,8 @@ export default function HomeScreen() {
   const [selectedSucursal, setSelectedSucursal] = useState("");
   const [furnitureOptions, setFurnitureOptions] = useState<FurnitureOption[]>([]);
   const [rol, setRol] = useState<{ usuario:string }[]>([]);
+  const [rolAvailable, setRolAvailable] = useState(true);
   const navigation = useNavigation<DrawerNavigationProp<{}>>();
-
-
-  
 
   const getMuebles = async () => {
     try {
@@ -94,11 +85,13 @@ export default function HomeScreen() {
       if (data && typeof data === "object") {
         const dataUsuario = [{ usuario: data.usuario }];
         setRol(dataUsuario);
+        setRolAvailable(true)
       } else {
         console.error("La respuesta no es un objeto válido:", data);
       }
     } catch(e) {
       console.error(e)
+      setRolAvailable(false)
       setRol([]);
     }
   };
@@ -183,6 +176,12 @@ export default function HomeScreen() {
   useEffect(() => {
     getMuebles();
   }, []);
+
+  useEffect(() => {
+    if (rolAvailable===false) {
+      router.replace('/Login');
+    }
+  }, [rolAvailable]);
   
 
   return (
@@ -201,7 +200,7 @@ export default function HomeScreen() {
         </View>
       <ScrollView className='p-5 flex-1 w-full'>
         <Text className='text-2xl font-semibold text-white mb-5 text-start'>
-          Resumen General
+              Resumen General
         </Text>
       
         <View className='bg-stone-800 p-4 rounded-lg mb-4 flex-row items-center shadow-lg'>

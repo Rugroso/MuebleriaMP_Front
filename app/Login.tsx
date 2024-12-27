@@ -35,7 +35,8 @@ export default function LoginScreen() {
       });
       if (response.ok) {
         Alert.alert('Éxito', 'Has iniciado sesión correctamente.');
-        router.push('/(tabs)');
+        //@ts-ignore
+        router.replace('/(tabs)');
       } 
       else {
         Alert.alert('Error', 'Usuario o Contraseña Incorrectos.');
